@@ -9,6 +9,9 @@ export interface HealingContent {
   title: string;
   poem: string;
   imageBase64: string;
+  matchedTags?: string[];
+  matchedEmotions?: string[];
+  debug?: any;
 }
 
 /**
@@ -16,6 +19,8 @@ export interface HealingContent {
  * 直接调用后端 API，同步返回结果
  */
 export async function generateHealingContent(obsession: string): Promise<HealingContent> {
+  console.log('[前端] 开始生成内容，执念:', obsession);
+  
   try {
     const response = await fetch(`${API_BASE}/meditation/start`, {
       method: 'POST',
@@ -27,30 +32,51 @@ export async function generateHealingContent(obsession: string): Promise<Healing
     });
 
     if (!response.ok) {
+      console.error('[前端] API 请求失败:', response.status);
       throw new Error('API request failed');
     }
 
     const data = await response.json();
+    console.log('[前端] API 响应:', data);
 
-    // 新的 API 直接返回结果
+    // 返回结果和调试信息
     if (data.status === 'completed' && data.result) {
+      // 打印调试信息到控制台
+      if (data._debug) {
+        console.log('========== 调试信息 ==========');
+        console.log('步骤:', data._debug.step);
+        console.log('ARK API Key 配置:', data._debug.hasApiKey ? '✅ 已配置' : '❌ 未配置');
+        if (data._debug.error) {
+          console.error('错误:', data._debug.error);
+        }
+        if (data._debug.matchedTags) {
+          console.log('匹配标签:', data._debug.matchedTags);
+        }
+        console.log('耗时:', data._debug.duration);
+        console.log('==============================');
+      }
+      
       return {
         title: data.result.title,
         poem: data.result.poem,
         imageBase64: data.result.imageBase64,
+        matchedTags: data.result.matchedTags,
+        matchedEmotions: data.result.matchedEmotions,
+        debug: data._debug,
       };
     }
 
     throw new Error('Invalid response');
 
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('[前端] API 错误:', error);
     
     // 返回兜底内容
     return {
       title: "心境",
       poem: "心若止水，\n万物皆空。\n执念如云，\n随风而去。",
-      imageBase64: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80"
+      imageBase64: "https://cdn.pixabay.com/photo/2017/08/30/01/05/milky-way-2695569_960_720.jpg",
+      debug: { error: '前端捕获异常', step: 'frontend_error' }
     };
   }
 }
