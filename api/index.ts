@@ -1,17 +1,10 @@
-import express from 'express';
-import cors from 'cors';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Type } from '@google/genai';
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
 // ==================== 配置 ====================
-const DAILY_LIMIT = 3; // 每日生成限制
+const DAILY_LIMIT = 3;
 
 // ==================== 数据存储 ====================
-// 注意：Serverless 环境下内存存储会在每次调用后清空
-// 生产环境应使用 Redis 或数据库
 interface Session {
   id: string;
   userId: string;
@@ -29,7 +22,7 @@ interface UserQuota {
   count: number;
 }
 
-// 使用全局变量在同一个容器实例间共享状态
+// 全局变量存储
 declare global {
   var sessions: Map<string, Session> | undefined;
   var quotas: Map<string, UserQuota> | undefined;
@@ -38,7 +31,7 @@ declare global {
 const sessions = globalThis.sessions || (globalThis.sessions = new Map<string, Session>());
 const quotas = globalThis.quotas || (globalThis.quotas = new Map<string, UserQuota>());
 
-// ==================== 兜底图片库 ====================
+// ==================== 兜底内容 ====================
 const FALLBACK_IMAGES = [
   'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
   'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
@@ -71,11 +64,6 @@ const FALLBACK_IMAGES = [
   'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80',
 ];
 
-function getFallbackImage(text: string): string {
-  const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return FALLBACK_IMAGES[hash % FALLBACK_IMAGES.length];
-}
-
 const FALLBACK_POEMS = [
   '心若止水，\n万物皆空。\n执念如云，\n随风而去。',
   '一念花开，\n一念花落。\n心安处，\n即是归处。',
@@ -85,7 +73,11 @@ const FALLBACK_POEMS = [
   '云卷云舒，\n皆是风景。\n心随云动，\n自在从容。',
 ];
 
-// ==================== 工具函数 ====================
+function getFallbackImage(text: string): string {
+  const hash = text.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return FALLBACK_IMAGES[hash % FALLBACK_IMAGES.length];
+}
+
 function getToday(): string {
   return new Date().toISOString().split('T')[0];
 }
@@ -115,7 +107,7 @@ function generateId(): string {
   return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
-// ==================== Gemini API 调用 ====================
+// ==================== Gemini API ====================
 async function generateWithGemini(obsession: string): Promise<{ title: string; poem: string; imageBase64: string }> {
   const apiKey = process.env.GEMINI_API_KEY;
   
@@ -129,9 +121,9 @@ async function generateWithGemini(obsession: string): Promise<{ title: string; p
     return { title, poem, imageBase64: getFallbackImage(obsession) };
   }
 
-  const ai = new GoogleGenAI({ apiKey });
-
   try {
+    const ai = new GoogleGenAI({ apiKey });
+
     const poemResponse = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-05-20",
       contents: `用户输入了一个心中的执念或烦恼："${obsession}"。
@@ -146,9 +138,9 @@ async function generateWithGemini(obsession: string): Promise<{ title: string; p
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            title: { type: Type.STRING, description: "诗的小标题（2-5个字）" },
-            poem: { type: Type.STRING, description: "诗的正文，使用 \\n 换行" },
-            imagePrompt: { type: Type.STRING, description: "用于生成图片的英文Prompt" }
+            title: { type: Type.STRING },
+            poem: { type: Type.STRING },
+            imagePrompt: { type: Type.STRING }
           },
           required: ["title", "poem", "imagePrompt"]
         }
@@ -157,145 +149,149 @@ async function generateWithGemini(obsession: string): Promise<{ title: string; p
 
     const parsed = JSON.parse(poemResponse.text || "{}");
     title = parsed.title || title;
-    poem = parsed.poem || poem;
-    poem = poem.replace(/\\n/g, '\n');
+    poem = (parsed.poem || poem).replace(/\\n/g, '\n');
     imagePrompt = parsed.imagePrompt || imagePrompt;
-  } catch (e) {
-    console.error("[Gemini] Failed to generate poem:", e);
-  }
 
-  // 生成图片（带重试）
-  let attempts = 0;
-  while (attempts < 2 && !imageBase64) {
-    try {
-      attempts++;
-      const imageResult = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-preview-05-20',
-        contents: { parts: [{ text: imagePrompt }] }
-      });
-      
-      if (imageResult.candidates?.[0]?.content?.parts) {
-        for (const part of imageResult.candidates[0].content.parts) {
-          if (part.inlineData) {
-            imageBase64 = `data:${part.inlineData.mimeType || 'image/jpeg'};base64,${part.inlineData.data}`;
-            break;
+    // 生成图片
+    for (let i = 0; i < 2 && !imageBase64; i++) {
+      try {
+        const imageResult = await ai.models.generateContent({
+          model: 'gemini-2.5-flash-preview-05-20',
+          contents: { parts: [{ text: imagePrompt }] }
+        });
+        
+        if (imageResult.candidates?.[0]?.content?.parts) {
+          for (const part of imageResult.candidates[0].content.parts) {
+            if (part.inlineData) {
+              imageBase64 = `data:${part.inlineData.mimeType || 'image/jpeg'};base64,${part.inlineData.data}`;
+              break;
+            }
           }
         }
-      }
-    } catch (err) {
-      console.error(`[Gemini] Image generation attempt ${attempts} failed:`, err);
-      if (attempts < 2) {
-        await new Promise(resolve => setTimeout(resolve, 1500));
+      } catch (err) {
+        console.error(`[Gemini] Image attempt ${i + 1} failed:`, err);
+        if (i < 1) await new Promise(r => setTimeout(r, 1500));
       }
     }
+  } catch (e) {
+    console.error("[Gemini] Failed:", e);
   }
 
   if (!imageBase64) {
-    console.warn("[Gemini] Using fallback image");
     imageBase64 = getFallbackImage(obsession);
   }
 
   return { title, poem, imageBase64 };
 }
 
-// ==================== API 路由 ====================
+// ==================== 处理函数 ====================
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // CORS
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-user-id');
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-app.post('/api/meditation/start', async (req, res) => {
-  const { obsession } = req.body;
-  const userId = (req.headers['x-user-id'] as string) || 'anonymous';
-
-  if (!obsession || typeof obsession !== 'string') {
-    return res.status(400).json({ error: '请输入你的执念' });
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
-  const sessionId = generateId();
-  const session: Session = {
-    id: sessionId,
-    userId,
-    obsession,
-    status: 'pending',
-    createdAt: new Date()
-  };
-  sessions.set(sessionId, session);
+  const path = req.url?.split('?')[0] || '';
+  const userId = (req.headers['x-user-id'] as string) || 'anonymous';
 
-  const quotaStatus = checkQuota(userId);
-  res.json({ sessionId, status: 'pending' });
-
-  // 后台异步生成（在 Serverless 中，这会在响应后继续执行）
   try {
-    session.status = 'processing';
+    // 健康检查
+    if (path === '/api/health' || path === '/api/') {
+      return res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+    }
 
-    let result;
-    if (quotaStatus.exceeded) {
-      console.log(`[Meditation] User ${userId} exceeded daily limit, using fallback`);
-      result = {
-        title: "心境",
-        poem: FALLBACK_POEMS[Math.floor(Math.random() * FALLBACK_POEMS.length)],
-        imageBase64: getFallbackImage(obsession)
+    // 开始冥想
+    if (path === '/api/meditation/start' && req.method === 'POST') {
+      const { obsession } = req.body || {};
+      
+      if (!obsession || typeof obsession !== 'string') {
+        return res.status(400).json({ error: '请输入你的执念' });
+      }
+
+      const sessionId = generateId();
+      const session: Session = {
+        id: sessionId,
+        userId,
+        obsession,
+        status: 'pending',
+        createdAt: new Date()
       };
-    } else {
-      result = await generateWithGemini(obsession);
-      incrementQuota(userId);
+      sessions.set(sessionId, session);
+
+      const quotaStatus = checkQuota(userId);
+
+      // 立即返回 sessionId
+      res.status(200).json({ sessionId, status: 'pending' });
+
+      // 异步生成（注意：Serverless 中可能需要等待）
+      session.status = 'processing';
+      
+      let result;
+      if (quotaStatus.exceeded) {
+        result = {
+          title: "心境",
+          poem: FALLBACK_POEMS[Math.floor(Math.random() * FALLBACK_POEMS.length)],
+          imageBase64: getFallbackImage(obsession)
+        };
+      } else {
+        result = await generateWithGemini(obsession);
+        incrementQuota(userId);
+      }
+
+      session.status = 'completed';
+      session.title = result.title;
+      session.poem = result.poem;
+      session.imageBase64 = result.imageBase64;
+      
+      return;
     }
 
-    session.status = 'completed';
-    session.title = result.title;
-    session.poem = result.poem;
-    session.imageBase64 = result.imageBase64;
+    // 获取结果
+    const resultMatch = path.match(/^\/api\/meditation\/result\/([^/]+)$/);
+    if (resultMatch && req.method === 'GET') {
+      const sessionId = resultMatch[1];
+      const session = sessions.get(sessionId);
 
-    console.log(`[Meditation] Session ${sessionId} completed`);
+      if (!session) {
+        return res.status(404).json({ error: '冥想会话不存在' });
+      }
+
+      return res.status(200).json({
+        status: session.status,
+        result: session.status === 'completed' ? {
+          title: session.title,
+          poem: session.poem,
+          imageBase64: session.imageBase64
+        } : undefined
+      });
+    }
+
+    // 历史记录
+    if (path === '/api/meditation/history' && req.method === 'GET') {
+      const userSessions = Array.from(sessions.values())
+        .filter(s => s.userId === userId && s.status === 'completed')
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .slice(0, 20)
+        .map(s => ({
+          id: s.id,
+          obsession: s.obsession,
+          title: s.title,
+          poem: s.poem,
+          imageBase64: s.imageBase64,
+          date: s.createdAt.toISOString()
+        }));
+
+      return res.status(200).json(userSessions);
+    }
+
+    return res.status(404).json({ error: 'Not found' });
+
   } catch (error) {
-    console.error(`[Meditation] Session ${sessionId} failed:`, error);
-    session.status = 'completed';
-    session.title = "心境";
-    session.poem = FALLBACK_POEMS[Math.floor(Math.random() * FALLBACK_POEMS.length)];
-    session.imageBase64 = getFallbackImage(obsession);
-    if (!quotaStatus.exceeded) {
-      incrementQuota(userId);
-    }
+    console.error('[API] Error:', error);
+    return res.status(500).json({ error: '服务器错误' });
   }
-});
-
-app.get('/api/meditation/result/:sessionId', (req, res) => {
-  const { sessionId } = req.params;
-  const session = sessions.get(sessionId);
-
-  if (!session) {
-    return res.status(404).json({ error: '冥想会话不存在' });
-  }
-
-  res.json({
-    status: session.status,
-    result: session.status === 'completed' ? {
-      title: session.title,
-      poem: session.poem,
-      imageBase64: session.imageBase64
-    } : undefined
-  });
-});
-
-app.get('/api/meditation/history', (req, res) => {
-  const userId = (req.headers['x-user-id'] as string) || 'anonymous';
-  
-  const userSessions = Array.from(sessions.values())
-    .filter(s => s.userId === userId && s.status === 'completed')
-    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-    .slice(0, 20)
-    .map(s => ({
-      id: s.id,
-      obsession: s.obsession,
-      title: s.title,
-      poem: s.poem,
-      imageBase64: s.imageBase64,
-      date: s.createdAt.toISOString()
-    }));
-
-  res.json(userSessions);
-});
-
-// 导出为 Vercel Serverless Function
-export default app;
+}
