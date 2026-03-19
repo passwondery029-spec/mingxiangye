@@ -1,0 +1,46 @@
+<!--pages/blooming/blooming.wxml - 结果展示页-->
+<view class="container">
+  <!-- 背景光晕 -->
+  <view class="bg-glow"></view>
+
+  <!-- 主内容 -->
+  <view class="main-content">
+    <!-- 画作 -->
+    <view class="art-container">
+      <!-- 纸质纹理 -->
+      <view class="paper-texture"></view>
+      
+      <!-- 图片 -->
+      <image 
+        wx:if="{{artPiece.imageBase64}}"
+        src="{{artPiece.imageBase64}}" 
+        mode="aspectFill"
+        class="art-image fade-in"
+        bindtap="previewImage"
+      />
+      
+      <!-- 兜底文字 -->
+      <view wx:else class="art-fallback">
+        <text class="fallback-text font-serif">画作未能显现，但心意已达。</text>
+      </view>
+    </view>
+
+    <!-- 诗句 -->
+    <view class="poem-container fade-in-delay">
+      <text class="poem-title font-serif">{{artPiece.title}}</text>
+      <view class="poem-lines">
+        <text wx:for="{{poemLines}}" wx:key="index" class="poem-line font-serif">{{item}}</text>
+      </view>
+    </view>
+
+    <!-- 按钮 -->
+    <view class="button-group fade-in-delay-2">
+      <button class="btn-primary font-serif" bindtap="handleSave">
+        收录心境图鉴
+      </button>
+      <button class="btn-outline font-serif" bindtap="handleDiscard">
+        随风散去
+      </button>
+    </view>
+  </view>
+</view>

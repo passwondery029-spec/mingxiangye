@@ -1,0 +1,126 @@
+/* app.wxss - 全局样式 */
+
+/* 主题色变量 */
+page {
+  --primary: #4a6c6f;
+  --primary-light: #6B8E8F;
+  --secondary: #F5F5F0;
+  --text-primary: #4a6c6f;
+  --text-secondary: rgba(74, 108, 111, 0.6);
+  --text-hint: rgba(74, 108, 111, 0.4);
+  --bg-main: #F5F5F0;
+  
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  min-height: 100vh;
+}
+
+/* 宋体风格 */
+.font-serif {
+  font-family: 'Songti SC', 'Noto Serif SC', 'STSong', serif;
+}
+
+/* 容器 */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40rpx;
+  box-sizing: border-box;
+}
+
+/* 按钮样式 */
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  border-radius: 100rpx;
+  padding: 24rpx 60rpx;
+  font-size: 28rpx;
+  letter-spacing: 8rpx;
+  box-shadow: 0 4rpx 20rpx rgba(74, 108, 111, 0.2);
+}
+
+.btn-primary:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background-color: rgba(74, 108, 111, 0.05);
+  color: var(--text-secondary);
+  border-radius: 100rpx;
+  padding: 20rpx 40rpx;
+  font-size: 26rpx;
+  letter-spacing: 4rpx;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 2rpx solid rgba(74, 108, 111, 0.2);
+  border-radius: 100rpx;
+  padding: 24rpx 50rpx;
+  font-size: 28rpx;
+  letter-spacing: 6rpx;
+}
+
+/* 文字样式 */
+.text-title {
+  font-size: 54rpx;
+  letter-spacing: 20rpx;
+  color: var(--text-primary);
+}
+
+.text-subtitle {
+  font-size: 32rpx;
+  letter-spacing: 12rpx;
+  color: var(--text-secondary);
+}
+
+.text-poem {
+  font-size: 36rpx;
+  letter-spacing: 8rpx;
+  line-height: 2;
+  color: var(--text-primary);
+}
+
+.text-hint {
+  font-size: 24rpx;
+  color: var(--text-hint);
+  letter-spacing: 4rpx;
+}
+
+/* 动画 */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+@keyframes ripple {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(3); opacity: 0; }
+}
+
+.fade-in {
+  animation: fadeIn 1s ease-out;
+}
+
+.pulse {
+  animation: pulse 4s ease-in-out infinite;
+}
+
+/* 隐藏滚动条 */
+::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  color: transparent;
+}

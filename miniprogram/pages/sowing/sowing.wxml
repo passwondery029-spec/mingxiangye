@@ -1,0 +1,51 @@
+<!--pages/sowing/sowing.wxml - 执念输入页-->
+<view class="container">
+  <!-- 背景光晕 -->
+  <view class="bg-glow"></view>
+  
+  <!-- 莲花背景 -->
+  <view class="lotus-bg">
+    <image src="/images/lotus.svg" mode="aspectFit" class="lotus-image" />
+  </view>
+
+  <!-- 主内容 -->
+  <view class="main-content">
+    <!-- 标题 -->
+    <view class="title-wrapper">
+      <text class="title font-serif">一念生花</text>
+    </view>
+    
+    <!-- 输入框 -->
+    <textarea 
+      class="input-area font-serif"
+      placeholder="写下你此刻的执念、焦虑或愿望..."
+      placeholder-class="input-placeholder"
+      value="{{text}}"
+      bindinput="onInput"
+      maxlength="200"
+      auto-height
+    />
+    
+    <!-- 播种按钮 -->
+    <button 
+      class="btn-primary font-serif {{!text ? 'btn-disabled' : ''}}"
+      bindtap="handleSow"
+      disabled="{{!text || isSowing}}"
+    >
+      化作种子
+    </button>
+    
+    <!-- 提示文字 -->
+    <text class="hint-text font-serif">播下种子后，将开启一段 7 分钟的静心冥想</text>
+  </view>
+
+  <!-- 播种动画 -->
+  <view class="seed-animation {{isSowing ? 'show' : ''}}">
+    <view class="seed-dot"></view>
+  </view>
+
+  <!-- 图鉴入口 -->
+  <view class="gallery-btn" bindtap="goGallery">
+    <text class="btn-secondary font-serif">心境图鉴</text>
+  </view>
+</view>

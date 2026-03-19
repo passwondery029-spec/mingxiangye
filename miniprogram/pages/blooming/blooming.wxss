@@ -1,0 +1,151 @@
+/* pages/blooming/blooming.wxss */
+
+.container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60rpx 40rpx;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* 背景光晕 */
+.bg-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(74, 108, 111, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* 主内容 */
+.main-content {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 700rpx;
+}
+
+/* 画作容器 */
+.art-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  border-radius: 32rpx;
+  overflow: hidden;
+  background-color: var(--secondary);
+  box-shadow: 0 20rpx 80rpx rgba(74, 108, 111, 0.1);
+  margin-bottom: 60rpx;
+}
+
+.paper-texture {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://www.transparenttextures.com/patterns/rice-paper.png');
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.art-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.art-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(74, 108, 111, 0.05);
+}
+
+.fallback-text {
+  font-size: 28rpx;
+  color: var(--text-hint);
+  letter-spacing: 4rpx;
+}
+
+/* 诗句容器 */
+.poem-container {
+  text-align: center;
+  margin-bottom: 60rpx;
+}
+
+.poem-title {
+  display: block;
+  font-size: 32rpx;
+  letter-spacing: 16rpx;
+  color: var(--text-secondary);
+  margin-bottom: 30rpx;
+}
+
+.poem-lines {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.poem-line {
+  font-size: 36rpx;
+  letter-spacing: 10rpx;
+  line-height: 2;
+  color: var(--text-primary);
+}
+
+/* 按钮 */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  width: 100%;
+  max-width: 400rpx;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  border-radius: 100rpx;
+  padding: 28rpx 0;
+  font-size: 30rpx;
+  letter-spacing: 8rpx;
+  box-shadow: 0 4rpx 20rpx rgba(74, 108, 111, 0.2);
+  border: none;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 2rpx solid rgba(74, 108, 111, 0.2);
+  border-radius: 100rpx;
+  padding: 26rpx 0;
+  font-size: 30rpx;
+  letter-spacing: 8rpx;
+}
+
+/* 动画 */
+.fade-in {
+  animation: fadeIn 3.5s ease-out;
+}
+
+.fade-in-delay {
+  animation: fadeIn 1.5s ease-out 3.5s both;
+}
+
+.fade-in-delay-2 {
+  animation: fadeIn 1s ease-out 4.5s both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20rpx); }
+  to { opacity: 1; transform: translateY(0); }
+}

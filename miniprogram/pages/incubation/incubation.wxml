@@ -1,0 +1,31 @@
+<!--pages/incubation/incubation.wxml - 冥想过程页-->
+<view class="container">
+  <!-- 纸质纹理 -->
+  <view class="paper-texture"></view>
+  
+  <!-- 水波纹背景 -->
+  <view class="ripple-container">
+    <view class="ripple ripple-1"></view>
+    <view class="ripple ripple-2"></view>
+    <view class="ripple ripple-3"></view>
+  </view>
+  
+  <!-- 呼吸光晕 -->
+  <view class="breathing-glow {{phase === '吸气' ? 'inhale' : 'exhale'}}"></view>
+
+  <!-- 主内容 -->
+  <view class="main-content">
+    <!-- 呼吸引导 -->
+    <text class="breath-text font-serif">{{phase}}</text>
+    
+    <!-- 计时器 -->
+    <text class="timer">{{formatTime}}</text>
+  </view>
+
+  <!-- 跳过按钮 -->
+  <view class="skip-btn" bindtap="handleSkip">
+    <text class="skip-text font-serif">
+      {{isSkipping ? (isReady ? '即将展现...' : '正在为您凝结画作...') : '提前结束冥想'}}
+    </text>
+  </view>
+</view>

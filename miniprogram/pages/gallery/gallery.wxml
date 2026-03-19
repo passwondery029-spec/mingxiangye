@@ -1,0 +1,63 @@
+<!--pages/gallery/gallery.wxml - 心境图鉴页-->
+<view class="container">
+  <!-- 标题 -->
+  <view class="header">
+    <text class="title font-serif">心境图鉴</text>
+    <text class="subtitle font-serif">{{gallery.length}} 件作品</text>
+  </view>
+
+  <!-- 图鉴列表 -->
+  <scroll-view scroll-y class="gallery-scroll">
+    <view wx:if="{{gallery.length === 0}}" class="empty-state">
+      <text class="empty-text font-serif">暂无收藏的心境</text>
+      <text class="empty-hint font-serif">完成冥想后可将作品收录于此</text>
+    </view>
+
+    <view wx:else class="gallery-grid">
+      <view 
+        wx:for="{{gallery}}" 
+        wx:key="id" 
+        class="gallery-item"
+        bindtap="viewDetail"
+        data-index="{{index}}"
+      >
+        <image 
+          src="{{item.imageBase64}}" 
+          mode="aspectFill"
+          class="item-image"
+        />
+        <view class="item-info">
+          <text class="item-title font-serif">{{item.title}}</text>
+          <text class="item-date">{{formatDate(item.date)}}</text>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 返回按钮 -->
+  <view class="back-btn" bindtap="goBack">
+    <text class="btn-secondary font-serif">返回</text>
+  </view>
+
+  <!-- 详情弹窗 -->
+  <view class="modal {{showModal ? 'show' : ''}}" bindtap="closeModal">
+    <view class="modal-content" catchtap="preventClose">
+      <image 
+        wx:if="{{currentArt.imageBase64}}"
+        src="{{currentArt.imageBase64}}" 
+        mode="aspectFit"
+        class="modal-image"
+      />
+      <view class="modal-info">
+        <text class="modal-title font-serif">{{currentArt.title}}</text>
+        <view class="modal-poem">
+          <text wx:for="{{currentPoemLines}}" wx:key="index" class="poem-line font-serif">{{item}}</text>
+        </view>
+        <text class="modal-obsession font-serif">「{{currentArt.obsession}}」</text>
+      </view>
+      <view class="modal-close" bindtap="closeModal">
+        <text>×</text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,183 @@
+/* pages/gallery/gallery.wxss */
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 60rpx 40rpx;
+  box-sizing: border-box;
+}
+
+/* 标题 */
+.header {
+  text-align: center;
+  margin-bottom: 40rpx;
+}
+
+.title {
+  display: block;
+  font-size: 44rpx;
+  letter-spacing: 16rpx;
+  color: var(--text-primary);
+  margin-bottom: 16rpx;
+}
+
+.subtitle {
+  font-size: 24rpx;
+  color: var(--text-hint);
+  letter-spacing: 4rpx;
+}
+
+/* 图鉴列表 */
+.gallery-scroll {
+  flex: 1;
+  height: 0;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 0;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: var(--text-hint);
+  letter-spacing: 8rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-hint {
+  font-size: 24rpx;
+  color: var(--text-hint);
+  letter-spacing: 4rpx;
+}
+
+/* 图鉴网格 */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx;
+}
+
+.gallery-item {
+  position: relative;
+  border-radius: 20rpx;
+  overflow: hidden;
+  background-color: var(--secondary);
+  box-shadow: 0 8rpx 30rpx rgba(74, 108, 111, 0.1);
+}
+
+.item-image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.item-info {
+  padding: 20rpx;
+  background-color: var(--secondary);
+}
+
+.item-title {
+  display: block;
+  font-size: 28rpx;
+  letter-spacing: 8rpx;
+  color: var(--text-primary);
+  margin-bottom: 8rpx;
+}
+
+.item-date {
+  font-size: 22rpx;
+  color: var(--text-hint);
+}
+
+/* 返回按钮 */
+.back-btn {
+  position: fixed;
+  bottom: 60rpx;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* 弹窗 */
+.modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  z-index: 1000;
+}
+
+.modal.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-content {
+  position: relative;
+  width: 90%;
+  max-width: 600rpx;
+  background-color: var(--secondary);
+  border-radius: 32rpx;
+  overflow: hidden;
+  padding: 40rpx;
+}
+
+.modal-image {
+  width: 100%;
+  height: 400rpx;
+  border-radius: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.modal-info {
+  text-align: center;
+}
+
+.modal-title {
+  display: block;
+  font-size: 36rpx;
+  letter-spacing: 16rpx;
+  color: var(--text-primary);
+  margin-bottom: 30rpx;
+}
+
+.modal-poem {
+  margin-bottom: 30rpx;
+}
+
+.modal-poem .poem-line {
+  display: block;
+  font-size: 30rpx;
+  letter-spacing: 8rpx;
+  line-height: 1.8;
+  color: var(--text-primary);
+}
+
+.modal-obsession {
+  font-size: 26rpx;
+  color: var(--text-hint);
+  letter-spacing: 4rpx;
+}
+
+.modal-close {
+  position: absolute;
+  top: 20rpx;
+  right: 20rpx;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  color: var(--text-hint);
+}

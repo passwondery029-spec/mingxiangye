@@ -1,0 +1,17 @@
+{
+  "pages": [
+    "pages/sowing/sowing",
+    "pages/incubation/incubation",
+    "pages/blooming/blooming",
+    "pages/gallery/gallery"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "navigationBarBackgroundColor": "#F5F5F0",
+    "navigationBarTitleText": "冥想夜",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F5F5F0"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
