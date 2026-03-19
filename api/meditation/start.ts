@@ -55,12 +55,12 @@ async function generateWithARK(obsession: string): Promise<{
   debug?: any;
 }> {
   const apiKey = process.env.ARK_API_KEY;
-  const modelId = process.env.ARK_MODEL_ID || 'ep-xxxxxxxxxxxx'; // 默认模型 ID，需要用户配置
+  const modelId = process.env.ARK_MODEL_ID || 'ep-m-20260305204118-rh2xg';
   
   // 调试信息
   const debug: any = {
     hasApiKey: !!apiKey,
-    hasModelId: !!process.env.ARK_MODEL_ID,
+    modelId: modelId,
   };
 
   // 默认值
@@ -88,11 +88,15 @@ async function generateWithARK(obsession: string): Promise<{
         messages: [
           {
             role: 'system',
-            content: `你是一位充满东方禅意与温柔的疗愈师。当用户向你诉说执念或烦恼时，你会：
-1. 构思一个具体的视觉隐喻（比如：融化的冰山、绽放的莲花、散开的墨滴等）
-2. 写一首简短的现代诗（4-6行），用来化解这个执念
-3. 为这首诗起一个简短的、充满诗意的小标题（2-5个字）
-4. 返回 JSON 格式：{"title": "标题", "poem": "诗句用\\n换行", "imagePrompt": "用于生成图片的英文描述"}`
+            content: `你是一位充满东方禅意与温柔的疗愈师。当用户向你诉说执念或烦恼时，请用温暖的语气回应。
+
+要求：
+1. 写一首简短的现代诗（4-6行），帮助化解执念
+2. 为诗起一个诗意的小标题（2-5个字）
+3. 直接返回 JSON 格式，不要包裹在 markdown 代码块中
+
+返回格式示例：
+{"title": "心境", "poem": "心若止水\\n万物皆空\\n执念如云\\n随风而去"}`
           },
           {
             role: 'user',
@@ -100,7 +104,7 @@ async function generateWithARK(obsession: string): Promise<{
           }
         ],
         temperature: 0.8,
-        max_tokens: 500
+        max_tokens: 300
       })
     });
 
@@ -115,25 +119,30 @@ async function generateWithARK(obsession: string): Promise<{
     console.log("[ARK] Response received");
     
     const content = data.choices?.[0]?.message?.content || '';
+    debug.rawContent = content.substring(0, 200);
     
     // 尝试解析 JSON
     let parsed;
     try {
-      // 提取 JSON 部分
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        parsed = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error('No JSON found');
+      // 尝试直接解析
+      parsed = JSON.parse(content);
+    } catch {
+      // 尝试提取 JSON
+      try {
+        const jsonMatch = content.match(/\{[\s\S]*?\}/);
+        if (jsonMatch) {
+          parsed = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('No JSON found');
+        }
+      } catch {
+        // 解析失败，使用返回的内容作为诗句
+        const lines = content.split(/\n/).filter((l: string) => l.trim());
+        parsed = {
+          title: "心境",
+          poem: lines.slice(0, 4).join('\\n')
+        };
       }
-    } catch (parseErr) {
-      console.error("[ARK] Parse error:", parseErr);
-      // 如果解析失败，直接使用返回的内容作为诗句
-      parsed = {
-        title: "心境",
-        poem: content.replace(/\n/g, '\\n'),
-        imagePrompt: "Abstract Chinese ink wash painting, zen style"
-      };
     }
 
     title = parsed.title || title;
@@ -142,13 +151,10 @@ async function generateWithARK(obsession: string): Promise<{
     debug.title = title;
     console.log("[ARK] Poem generated:", title);
 
-    // 图片生成：使用 ARK 的文生图能力（如果支持）或使用精选图片
-    // 由于 ARK 主要是文本模型，我们使用精选的禅意图片作为配图
-    // 可以根据诗句内容选择匹配的图片
-    const imagePrompt = parsed.imagePrompt || obsession;
-    const hash = imagePrompt.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    // 图片：使用精选禅意图片（根据诗句内容选择）
+    const hash = (title + obsession).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     imageBase64 = FALLBACK_IMAGES[hash % FALLBACK_IMAGES.length];
-    debug.imageSource = 'fallback';
+    debug.imageSource = 'curated';
 
   } catch (e: any) {
     console.error("[ARK] Error:", e.message);
