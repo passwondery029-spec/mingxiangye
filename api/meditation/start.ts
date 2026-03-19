@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getMatchedImage, getRandomImage } from '../images';
+import { getMatchedImage, getRandomImage } from '../_lib/images';
 
 // ==================== ARK API 调用 ====================
 async function generateWithARK(obsession: string): Promise<{ 
