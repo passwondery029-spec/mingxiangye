@@ -49,23 +49,36 @@ function getFallbackImage(text: string): string {
 }
 
 // ==================== Gemini API ====================
-async function generateWithGemini(obsession: string): Promise<{ title: string; poem: string; imageBase64: string }> {
+async function generateWithGemini(obsession: string): Promise<{ 
+  title: string; 
+  poem: string; 
+  imageBase64: string;
+  debug?: any;
+}> {
   const apiKey = process.env.GEMINI_API_KEY;
   
+  // 调试信息
+  const debug: any = {
+    hasApiKey: !!apiKey,
+    apiKeyPrefix: apiKey ? apiKey.substring(0, 10) + '...' : 'none',
+  };
+
   // 默认值
   let title = "心境";
   let poem = "万物皆有裂痕，\n那是光照进来的地方。\n静候时光流转，\n心安即是归处。";
   let imageBase64 = getFallbackImage(obsession);
 
   if (!apiKey) {
-    console.warn("[Gemini] GEMINI_API_KEY not set");
-    return { title, poem, imageBase64 };
+    console.error("[Gemini] GEMINI_API_KEY not set!");
+    return { title, poem, imageBase64, debug: { ...debug, error: 'API key not set' } };
   }
 
   try {
+    console.log("[Gemini] Initializing client...");
     const ai = new GoogleGenAI({ apiKey });
 
     // 生成诗句
+    console.log("[Gemini] Generating poem...");
     const poemResponse = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-05-20",
       contents: `用户输入了一个心中的执念或烦恼："${obsession}"。
@@ -93,8 +106,13 @@ async function generateWithGemini(obsession: string): Promise<{ title: string; p
     title = parsed.title || title;
     poem = (parsed.poem || poem).replace(/\\n/g, '\n');
     const imagePrompt = parsed.imagePrompt || "Abstract Chinese ink wash painting, zen style";
+    
+    debug.poemGenerated = true;
+    debug.title = title;
+    console.log("[Gemini] Poem generated:", title);
 
     // 生成图片
+    console.log("[Gemini] Generating image...");
     try {
       const imageResult = await ai.models.generateContent({
         model: 'gemini-2.5-flash-preview-05-20',
@@ -105,19 +123,24 @@ async function generateWithGemini(obsession: string): Promise<{ title: string; p
         for (const part of imageResult.candidates[0].content.parts) {
           if (part.inlineData) {
             imageBase64 = `data:${part.inlineData.mimeType || 'image/jpeg'};base64,${part.inlineData.data}`;
+            debug.imageGenerated = true;
+            console.log("[Gemini] Image generated successfully");
             break;
           }
         }
       }
-    } catch (imgErr) {
-      console.error("[Gemini] Image failed:", imgErr);
+    } catch (imgErr: any) {
+      console.error("[Gemini] Image failed:", imgErr.message);
+      debug.imageError = imgErr.message;
     }
 
-  } catch (e) {
-    console.error("[Gemini] API failed:", e);
+  } catch (e: any) {
+    console.error("[Gemini] API failed:", e.message);
+    debug.error = e.message;
+    debug.errorType = e.constructor.name;
   }
 
-  return { title, poem, imageBase64 };
+  return { title, poem, imageBase64, debug };
 }
 
 // ==================== 主处理函数 ====================
@@ -142,19 +165,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: '请输入你的执念' });
     }
 
-    // 生成内容（同步等待）
+    // 生成内容
     const result = await generateWithGemini(obsession);
 
     return res.status(200).json({
       sessionId: `session_${Date.now()}`,
       status: 'completed',
-      result
+      result: {
+        title: result.title,
+        poem: result.poem,
+        imageBase64: result.imageBase64,
+      },
+      // 仅在测试时返回调试信息，生产环境可移除
+      _debug: result.debug
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[API] Error:', error);
     
-    // 返回兜底内容
     return res.status(200).json({
       sessionId: `session_${Date.now()}`,
       status: 'completed',
@@ -162,7 +190,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         title: "心境",
         poem: FALLBACK_POEMS[Math.floor(Math.random() * FALLBACK_POEMS.length)],
         imageBase64: getFallbackImage("error")
-      }
+      },
+      _debug: { error: error.message }
     });
   }
 }
