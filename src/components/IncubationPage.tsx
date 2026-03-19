@@ -199,91 +199,190 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
         </div>
       </div>
 
-      {/* 游走曲线动效 - 仅在冥想阶段显示 */}
+      {/* 游走曲线动效 - 仅在冥想阶段显示，营造"正在作画"氛围 */}
       {stage === 'meditation' && (
         <svg 
-          className="absolute inset-0 w-full h-full pointer-events-none opacity-30"
-          viewBox="0 0 400 800"
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          viewBox="0 0 100 100"
           preserveAspectRatio="xMidYMid slice"
         >
-          {/* 曲线1 - 缓慢上浮 */}
+          {/* 发光滤镜 */}
+          <defs>
+            <filter id="glow1" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="1" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <filter id="glow2" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="0.8" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <filter id="glowSoft" x="-100%" y="-100%" width="300%" height="300%">
+              <feGaussianBlur stdDeviation="1.5" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="blur" />
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+
+          {/* 画笔轨迹1 - 主曲线，缓慢绘制 */}
           <motion.path
-            d="M-50,850 Q100,700 200,750 T450,600 T650,700 T850,500"
+            d="M10,90 Q5,75 15,70 T25,55 Q30,45 35,50 T50,35 Q55,25 60,30 T75,20 Q85,15 90,25"
             fill="none"
-            stroke="#4a6c6f"
-            strokeWidth="1.5"
+            stroke="rgba(74,108,111,0.6)"
+            strokeWidth="0.3"
             strokeLinecap="round"
+            filter="url(#glowSoft)"
             initial={{ pathLength: 0, opacity: 0 }}
             animate={{ 
-              pathLength: 1, 
-              opacity: [0, 0.6, 0.3, 0.6, 0],
-              y: [0, -100, -200, -300]
+              pathLength: [0, 1],
+              opacity: [0, 0.8, 0.6]
             }}
             transition={{ 
-              pathLength: { duration: 3, ease: "easeInOut" },
-              opacity: { duration: 12, repeat: Infinity, ease: "easeInOut" },
-              y: { duration: 20, repeat: Infinity, ease: "linear" }
+              pathLength: { duration: 8, ease: "easeInOut", repeat: Infinity, repeatDelay: 2 },
+              opacity: { duration: 10, ease: "easeInOut", repeat: Infinity }
             }}
           />
-          {/* 曲线2 - 中速游走 */}
+          
+          {/* 画笔轨迹2 - 快速游走 */}
           <motion.path
-            d="M-30,900 Q150,800 250,850 T500,700 T700,800 T900,650"
+            d="M85,85 Q90,70 80,65 T70,50 Q65,40 75,35 T60,25 Q50,20 45,30 T30,15"
             fill="none"
-            stroke="#5a7c7f"
-            strokeWidth="2"
+            stroke="rgba(107,142,143,0.5)"
+            strokeWidth="0.25"
             strokeLinecap="round"
-            initial={{ pathLength: 0, opacity: 0 }}
+            filter="url(#glow1)"
+            initial={{ pathLength: 0 }}
             animate={{ 
-              pathLength: 1, 
-              opacity: [0, 0.5, 0.2, 0.5, 0],
-              x: [0, 30, -20, 0],
-              y: [0, -80, -180, -280]
+              pathLength: [0, 1, 1, 0],
+              opacity: [0, 0.7, 0.5, 0]
             }}
             transition={{ 
-              pathLength: { duration: 2.5, ease: "easeInOut", delay: 1 },
-              opacity: { duration: 15, repeat: Infinity, ease: "easeInOut", delay: 1 },
-              x: { duration: 10, repeat: Infinity, ease: "easeInOut" },
-              y: { duration: 18, repeat: Infinity, ease: "linear", delay: 1 }
+              pathLength: { duration: 6, ease: "easeInOut", repeat: Infinity, delay: 2 },
+              opacity: { duration: 6, ease: "easeInOut", repeat: Infinity, delay: 2 }
             }}
           />
-          {/* 曲线3 - 快速流动 */}
+
+          {/* 画笔轨迹3 - 蜿蜒曲线 */}
           <motion.path
-            d="M50,950 Q200,850 300,900 T550,750 T750,850 T950,700"
+            d="M5,60 Q15,55 20,60 T35,45 Q40,35 50,40 T60,30 Q70,25 75,35 T90,40"
             fill="none"
-            stroke="#6B8E8F"
-            strokeWidth="1"
+            stroke="rgba(74,108,111,0.4)"
+            strokeWidth="0.2"
             strokeLinecap="round"
-            initial={{ pathLength: 0, opacity: 0 }}
+            filter="url(#glow2)"
+            initial={{ pathLength: 0 }}
             animate={{ 
-              pathLength: 1, 
-              opacity: [0, 0.4, 0.15, 0.4, 0],
-              x: [0, -40, 20, 0],
-              y: [0, -120, -250, -400]
+              pathLength: [0, 1],
+              opacity: [0, 0.6, 0.4]
             }}
             transition={{ 
-              pathLength: { duration: 2, ease: "easeInOut", delay: 2 },
-              opacity: { duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 },
-              x: { duration: 8, repeat: Infinity, ease: "easeInOut" },
-              y: { duration: 15, repeat: Infinity, ease: "linear", delay: 2 }
+              pathLength: { duration: 10, ease: "easeInOut", repeat: Infinity, delay: 1, repeatDelay: 3 },
+              opacity: { duration: 13, ease: "easeInOut", repeat: Infinity, delay: 1 }
             }}
           />
-          {/* 曲线4 - 蜿蜒曲线 */}
+
+          {/* 画笔轨迹4 - 轻柔点缀 */}
           <motion.path
-            d="M100,1000 Q50,900 150,920 Q250,940 200,880 Q150,820 280,850 Q410,880 350,800 Q290,720 450,780 Q610,840 550,760 Q490,680 650,750"
+            d="M30,80 Q25,70 35,65 T45,55 Q50,48 55,55 T70,50"
             fill="none"
-            stroke="#3a5a5f"
-            strokeWidth="1.2"
+            stroke="rgba(184,142,108,0.4)"
+            strokeWidth="0.2"
             strokeLinecap="round"
-            initial={{ pathLength: 0, opacity: 0 }}
+            filter="url(#glow1)"
+            initial={{ pathLength: 0 }}
             animate={{ 
-              pathLength: 1, 
-              opacity: [0, 0.35, 0.1, 0.35, 0],
-              y: [0, -60, -150, -250]
+              pathLength: [0, 1, 1, 0],
+              opacity: [0, 0.5, 0.3, 0]
             }}
             transition={{ 
-              pathLength: { duration: 4, ease: "easeInOut", delay: 0.5 },
-              opacity: { duration: 18, repeat: Infinity, ease: "easeInOut", delay: 0.5 },
-              y: { duration: 25, repeat: Infinity, ease: "linear", delay: 0.5 }
+              pathLength: { duration: 5, ease: "easeInOut", repeat: Infinity, delay: 3 },
+              opacity: { duration: 5, ease: "easeInOut", repeat: Infinity, delay: 3 }
+            }}
+          />
+
+          {/* 画笔轨迹5 - 长弧线 */}
+          <motion.path
+            d="M95,95 Q70,80 50,85 T20,70 Q10,60 25,50 T40,35 Q50,25 60,35 T80,20 Q95,10 85,5"
+            fill="none"
+            stroke="rgba(74,108,111,0.35)"
+            strokeWidth="0.15"
+            strokeLinecap="round"
+            filter="url(#glowSoft)"
+            initial={{ pathLength: 0 }}
+            animate={{ 
+              pathLength: [0, 1],
+              opacity: [0, 0.5, 0.3]
+            }}
+            transition={{ 
+              pathLength: { duration: 12, ease: "easeInOut", repeat: Infinity, delay: 0.5, repeatDelay: 4 },
+              opacity: { duration: 16, ease: "easeInOut", repeat: Infinity, delay: 0.5 }
+            }}
+          />
+
+          {/* 画笔轨迹6 - 快速掠过 */}
+          <motion.path
+            d="M15,40 Q25,35 30,42 T45,38 Q55,32 50,45 T65,42 Q75,38 70,50"
+            fill="none"
+            stroke="rgba(107,142,143,0.3)"
+            strokeWidth="0.18"
+            strokeLinecap="round"
+            filter="url(#glow2)"
+            initial={{ pathLength: 0 }}
+            animate={{ 
+              pathLength: [0, 1, 1, 0],
+              opacity: [0, 0.6, 0.4, 0]
+            }}
+            transition={{ 
+              pathLength: { duration: 4, ease: "easeInOut", repeat: Infinity, delay: 4 },
+              opacity: { duration: 4, ease: "easeInOut", repeat: Infinity, delay: 4 }
+            }}
+          />
+
+          {/* 画笔轨迹7 - 点状轨迹 */}
+          <motion.path
+            d="M80,70 Q75,65 78,60 T72,52 Q68,48 72,45 T68,38"
+            fill="none"
+            stroke="rgba(74,108,111,0.25)"
+            strokeWidth="0.12"
+            strokeLinecap="round"
+            filter="url(#glow1)"
+            initial={{ pathLength: 0 }}
+            animate={{ 
+              pathLength: [0, 1],
+              opacity: [0, 0.4, 0.2]
+            }}
+            transition={{ 
+              pathLength: { duration: 7, ease: "easeInOut", repeat: Infinity, delay: 1.5, repeatDelay: 5 },
+              opacity: { duration: 12, ease: "easeInOut", repeat: Infinity, delay: 1.5 }
+            }}
+          />
+
+          {/* 画笔轨迹8 - 收尾点缀 */}
+          <motion.path
+            d="M50,95 Q45,90 55,85 T65,80 Q70,75 65,70 T75,65 Q82,60 78,55"
+            fill="none"
+            stroke="rgba(184,142,108,0.3)"
+            strokeWidth="0.15"
+            strokeLinecap="round"
+            filter="url(#glow2)"
+            initial={{ pathLength: 0 }}
+            animate={{ 
+              pathLength: [0, 1, 1, 0],
+              opacity: [0, 0.45, 0.25, 0]
+            }}
+            transition={{ 
+              pathLength: { duration: 9, ease: "easeInOut", repeat: Infinity, delay: 5 },
+              opacity: { duration: 9, ease: "easeInOut", repeat: Infinity, delay: 5 }
             }}
           />
         </svg>
