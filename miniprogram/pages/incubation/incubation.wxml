@@ -24,8 +24,6 @@
 
   <!-- 跳过按钮 -->
   <view class="skip-btn" bindtap="handleSkip">
-    <text class="skip-text font-serif">
-      {{isSkipping ? (isReady ? '即将展现...' : '正在为您凝结画作...') : '提前结束冥想'}}
-    </text>
+    <text class="skip-text font-serif">{{skipButtonText}}</text>
   </view>
 </view>

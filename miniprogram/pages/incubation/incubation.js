@@ -8,7 +8,9 @@ Page({
     timeLeft: 420, // 7 分钟
     formatTime: '7:00',
     isReady: false,
-    isSkipping: false
+    isSkipping: false,
+    isGenerating: true, // 新增：生成状态
+    skipButtonText: '正在生成画作...'
   },
 
   onLoad() {
@@ -59,8 +61,11 @@ Page({
 
   // 生成内容
   async generateContent() {
+    console.log('[冥想] 开始后台生成...');
+    
     try {
       const result = await api.generateHealingContent(this.obsession);
+      console.log('[冥想] 生成完成:', result.title);
       
       const artPiece = {
         id: Date.now().toString(),
@@ -72,7 +77,11 @@ Page({
       };
 
       app.globalData.currentArt = artPiece;
-      this.setData({ isReady: true });
+      this.setData({ 
+        isReady: true,
+        isGenerating: false,
+        skipButtonText: '提前结束冥想'
+      });
       this.checkAndNavigate();
     } catch (err) {
       console.error('生成失败:', err);
@@ -86,7 +95,11 @@ Page({
         imageBase64: fallback.imageBase64,
         date: new Date().toISOString()
       };
-      this.setData({ isReady: true });
+      this.setData({ 
+        isReady: true,
+        isGenerating: false,
+        skipButtonText: '提前结束冥想'
+      });
       this.checkAndNavigate();
     }
   },
@@ -94,7 +107,10 @@ Page({
   // 跳过
   handleSkip() {
     if (this.data.isSkipping) return;
-    this.setData({ isSkipping: true });
+    this.setData({ 
+      isSkipping: true,
+      skipButtonText: this.data.isReady ? '即将展现...' : '正在凝结画作...'
+    });
     this.checkAndNavigate();
   },
 

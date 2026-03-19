@@ -56,12 +56,18 @@ function getFallbackContent(obsession) {
     '云卷云舒，\n皆是风景。\n心随云动，\n自在从容。'
   ];
 
+  // 更新为新的图片库（Pixabay 绘画风格）
   const images = [
-    'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
-    'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80',
-    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=80',
-    'https://images.unsplash.com/photo-1454496522488-7a8e488e8606?w=800&q=80',
-    'https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?w=800&q=80'
+    'https://cdn.pixabay.com/photo/2017/08/30/01/05/milky-way-2695569_960_720.jpg',
+    'https://cdn.pixabay.com/photo/2016/03/09/09/17/composition-1245555_960_720.jpg',
+    'https://cdn.pixabay.com/photo/2016/10/20/18/35/earth-1756274_960_720.jpg',
+    'https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832_960_720.jpg',
+    'https://cdn.pixabay.com/photo/2017/02/01/12/05/mountains-2029239_960_720.jpg',
+    'https://cdn.pixabay.com/photo/2017/08/02/00/49/lotus-2569142_960_720.jpg',
+    'https://cdn.pixabay.com/photo/2016/11/29/04/16/blossom-1867602_960_720.jpg',
+    'https://cdn.pixabay.com/photo/2016/01/08/11/54/bamboo-1127557_960_720.jpg',
+    'https://cdn.pixabay.com/photo/2016/01/11/19/17/sunset-1134350_960_720.jpg',
+    'https://cdn.pixabay.com/photo/2018/01/06/14/05/snow-3066167_960_720.jpg'
   ];
 
   const hash = obsession.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
