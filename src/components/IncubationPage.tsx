@@ -57,6 +57,7 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
   // 音频
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [audioLoaded, setAudioLoaded] = useState(false);
 
   // 引导步骤自动推进
   useEffect(() => {
@@ -67,14 +68,31 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
     }
   }, [stage, currentStep]);
 
+  // 预加载音频
+  useEffect(() => {
+    if (selectedMusic && audioRef.current) {
+      audioRef.current.load();
+      audioRef.current.oncanplaythrough = () => {
+        setAudioLoaded(true);
+      };
+    }
+  }, [selectedMusic]);
+
   // 开始冥想
-  const startMeditation = () => {
+  const startMeditation = async () => {
     setStage('meditation');
     
-    // 开始播放音乐
+    // 确保音频播放（用户点击触发的交互）
     if (selectedMusic && audioRef.current) {
-      audioRef.current.play().catch(() => {});
-      setIsPlaying(true);
+      try {
+        audioRef.current.currentTime = 0;
+        await audioRef.current.play();
+        setIsPlaying(true);
+        console.log('[冥想] 音频开始播放:', selectedMusic.name);
+      } catch (err) {
+        console.error('[冥想] 音频播放失败:', err);
+        // 如果自动播放失败，提示用户点击播放
+      }
     }
     
     // 开始生成内容
@@ -181,11 +199,105 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
         </div>
       </div>
 
-      {/* 隐藏的音频元素 */}
-      <audio ref={audioRef} loop preload="none">
-        {/* 音频源需要替换为实际音频文件 */}
-        <source src={`/audio/${selectedMusic?.id}.mp3`} type="audio/mpeg" />
-      </audio>
+      {/* 游走曲线动效 - 仅在冥想阶段显示 */}
+      {stage === 'meditation' && (
+        <svg 
+          className="absolute inset-0 w-full h-full pointer-events-none opacity-30"
+          viewBox="0 0 400 800"
+          preserveAspectRatio="xMidYMid slice"
+        >
+          {/* 曲线1 - 缓慢上浮 */}
+          <motion.path
+            d="M-50,850 Q100,700 200,750 T450,600 T650,700 T850,500"
+            fill="none"
+            stroke="#4a6c6f"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ 
+              pathLength: 1, 
+              opacity: [0, 0.6, 0.3, 0.6, 0],
+              y: [0, -100, -200, -300]
+            }}
+            transition={{ 
+              pathLength: { duration: 3, ease: "easeInOut" },
+              opacity: { duration: 12, repeat: Infinity, ease: "easeInOut" },
+              y: { duration: 20, repeat: Infinity, ease: "linear" }
+            }}
+          />
+          {/* 曲线2 - 中速游走 */}
+          <motion.path
+            d="M-30,900 Q150,800 250,850 T500,700 T700,800 T900,650"
+            fill="none"
+            stroke="#5a7c7f"
+            strokeWidth="2"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ 
+              pathLength: 1, 
+              opacity: [0, 0.5, 0.2, 0.5, 0],
+              x: [0, 30, -20, 0],
+              y: [0, -80, -180, -280]
+            }}
+            transition={{ 
+              pathLength: { duration: 2.5, ease: "easeInOut", delay: 1 },
+              opacity: { duration: 15, repeat: Infinity, ease: "easeInOut", delay: 1 },
+              x: { duration: 10, repeat: Infinity, ease: "easeInOut" },
+              y: { duration: 18, repeat: Infinity, ease: "linear", delay: 1 }
+            }}
+          />
+          {/* 曲线3 - 快速流动 */}
+          <motion.path
+            d="M50,950 Q200,850 300,900 T550,750 T750,850 T950,700"
+            fill="none"
+            stroke="#6B8E8F"
+            strokeWidth="1"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ 
+              pathLength: 1, 
+              opacity: [0, 0.4, 0.15, 0.4, 0],
+              x: [0, -40, 20, 0],
+              y: [0, -120, -250, -400]
+            }}
+            transition={{ 
+              pathLength: { duration: 2, ease: "easeInOut", delay: 2 },
+              opacity: { duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 },
+              x: { duration: 8, repeat: Infinity, ease: "easeInOut" },
+              y: { duration: 15, repeat: Infinity, ease: "linear", delay: 2 }
+            }}
+          />
+          {/* 曲线4 - 蜿蜒曲线 */}
+          <motion.path
+            d="M100,1000 Q50,900 150,920 Q250,940 200,880 Q150,820 280,850 Q410,880 350,800 Q290,720 450,780 Q610,840 550,760 Q490,680 650,750"
+            fill="none"
+            stroke="#3a5a5f"
+            strokeWidth="1.2"
+            strokeLinecap="round"
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ 
+              pathLength: 1, 
+              opacity: [0, 0.35, 0.1, 0.35, 0],
+              y: [0, -60, -150, -250]
+            }}
+            transition={{ 
+              pathLength: { duration: 4, ease: "easeInOut", delay: 0.5 },
+              opacity: { duration: 18, repeat: Infinity, ease: "easeInOut", delay: 0.5 },
+              y: { duration: 25, repeat: Infinity, ease: "linear", delay: 0.5 }
+            }}
+          />
+        </svg>
+      )}
+
+      {/* 隐藏的音频元素 - 预加载以支持自动播放 */}
+      {selectedMusic && (
+        <audio 
+          ref={audioRef} 
+          loop 
+          preload="auto"
+          src={`/audio/${selectedMusic.id}.mp3`}
+        />
+      )}
 
       <AnimatePresence mode="wait">
         {/* ==================== 引导阶段 ==================== */}
