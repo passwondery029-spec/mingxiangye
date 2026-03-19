@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Serif+SC:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+  --color-primary: #4a6c6f;
+  --color-secondary: #EEF3EF;
+  --color-menu: #f7faf9cc;
+  --color-bg-main: #f9f9f7;
+}
+
+body {
+  background-color: var(--color-bg-main);
+  color: var(--color-primary);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+.font-serif-sc {
+  font-family: var(--font-serif);
+}
+
+.glass-panel {
+  background: var(--color-menu);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(74, 108, 111, 0.1);
+}
+
