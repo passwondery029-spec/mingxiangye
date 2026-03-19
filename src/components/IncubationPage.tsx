@@ -234,7 +234,7 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
             </filter>
           </defs>
 
-          {/* 画笔轨迹1 - 主曲线，缓慢绘制 */}
+          {/* 画笔轨迹1 - 主曲线：绘制 → 停留 → 从头消失 */}
           <motion.path
             d="M10,90 Q5,75 15,70 T25,55 Q30,45 35,50 T50,35 Q55,25 60,30 T75,20 Q85,15 90,25"
             fill="none"
@@ -242,13 +242,14 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
             strokeWidth="0.3"
             strokeLinecap="round"
             filter="url(#glowSoft)"
-            initial={{ pathLength: 0, opacity: 0 }}
+            strokeDasharray="100"
+            initial={{ strokeDashoffset: 100, opacity: 0 }}
             animate={{ 
-              pathLength: [0, 1],
-              opacity: [0, 0.8, 0.6]
+              strokeDashoffset: [100, 0, 0, -100],
+              opacity: [0, 0.8, 0.8, 0]
             }}
             transition={{ 
-              pathLength: { duration: 8, ease: "easeInOut", repeat: Infinity, repeatDelay: 2 },
+              strokeDashoffset: { duration: 10, ease: "easeInOut", repeat: Infinity },
               opacity: { duration: 10, ease: "easeInOut", repeat: Infinity }
             }}
           />
@@ -261,14 +262,15 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
             strokeWidth="0.25"
             strokeLinecap="round"
             filter="url(#glow1)"
-            initial={{ pathLength: 0 }}
+            strokeDasharray="80"
+            initial={{ strokeDashoffset: 80, opacity: 0 }}
             animate={{ 
-              pathLength: [0, 1, 1, 0],
-              opacity: [0, 0.7, 0.5, 0]
+              strokeDashoffset: [80, 0, 0, -80],
+              opacity: [0, 0.7, 0.7, 0]
             }}
             transition={{ 
-              pathLength: { duration: 6, ease: "easeInOut", repeat: Infinity, delay: 2 },
-              opacity: { duration: 6, ease: "easeInOut", repeat: Infinity, delay: 2 }
+              strokeDashoffset: { duration: 7, ease: "easeInOut", repeat: Infinity, delay: 2 },
+              opacity: { duration: 7, ease: "easeInOut", repeat: Infinity, delay: 2 }
             }}
           />
 
@@ -280,14 +282,15 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
             strokeWidth="0.2"
             strokeLinecap="round"
             filter="url(#glow2)"
-            initial={{ pathLength: 0 }}
+            strokeDasharray="90"
+            initial={{ strokeDashoffset: 90, opacity: 0 }}
             animate={{ 
-              pathLength: [0, 1],
-              opacity: [0, 0.6, 0.4]
+              strokeDashoffset: [90, 0, 0, -90],
+              opacity: [0, 0.6, 0.6, 0]
             }}
             transition={{ 
-              pathLength: { duration: 10, ease: "easeInOut", repeat: Infinity, delay: 1, repeatDelay: 3 },
-              opacity: { duration: 13, ease: "easeInOut", repeat: Infinity, delay: 1 }
+              strokeDashoffset: { duration: 12, ease: "easeInOut", repeat: Infinity, delay: 1 },
+              opacity: { duration: 12, ease: "easeInOut", repeat: Infinity, delay: 1 }
             }}
           />
 
@@ -299,14 +302,15 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
             strokeWidth="0.2"
             strokeLinecap="round"
             filter="url(#glow1)"
-            initial={{ pathLength: 0 }}
+            strokeDasharray="50"
+            initial={{ strokeDashoffset: 50, opacity: 0 }}
             animate={{ 
-              pathLength: [0, 1, 1, 0],
-              opacity: [0, 0.5, 0.3, 0]
+              strokeDashoffset: [50, 0, 0, -50],
+              opacity: [0, 0.5, 0.5, 0]
             }}
             transition={{ 
-              pathLength: { duration: 5, ease: "easeInOut", repeat: Infinity, delay: 3 },
-              opacity: { duration: 5, ease: "easeInOut", repeat: Infinity, delay: 3 }
+              strokeDashoffset: { duration: 6, ease: "easeInOut", repeat: Infinity, delay: 3 },
+              opacity: { duration: 6, ease: "easeInOut", repeat: Infinity, delay: 3 }
             }}
           />
 
@@ -318,14 +322,15 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
             strokeWidth="0.15"
             strokeLinecap="round"
             filter="url(#glowSoft)"
-            initial={{ pathLength: 0 }}
+            strokeDasharray="120"
+            initial={{ strokeDashoffset: 120, opacity: 0 }}
             animate={{ 
-              pathLength: [0, 1],
-              opacity: [0, 0.5, 0.3]
+              strokeDashoffset: [120, 0, 0, -120],
+              opacity: [0, 0.5, 0.5, 0]
             }}
             transition={{ 
-              pathLength: { duration: 12, ease: "easeInOut", repeat: Infinity, delay: 0.5, repeatDelay: 4 },
-              opacity: { duration: 16, ease: "easeInOut", repeat: Infinity, delay: 0.5 }
+              strokeDashoffset: { duration: 14, ease: "easeInOut", repeat: Infinity, delay: 0.5 },
+              opacity: { duration: 14, ease: "easeInOut", repeat: Infinity, delay: 0.5 }
             }}
           />
 
@@ -337,14 +342,15 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
             strokeWidth="0.18"
             strokeLinecap="round"
             filter="url(#glow2)"
-            initial={{ pathLength: 0 }}
+            strokeDasharray="60"
+            initial={{ strokeDashoffset: 60, opacity: 0 }}
             animate={{ 
-              pathLength: [0, 1, 1, 0],
-              opacity: [0, 0.6, 0.4, 0]
+              strokeDashoffset: [60, 0, 0, -60],
+              opacity: [0, 0.5, 0.5, 0]
             }}
             transition={{ 
-              pathLength: { duration: 4, ease: "easeInOut", repeat: Infinity, delay: 4 },
-              opacity: { duration: 4, ease: "easeInOut", repeat: Infinity, delay: 4 }
+              strokeDashoffset: { duration: 5, ease: "easeInOut", repeat: Infinity, delay: 4 },
+              opacity: { duration: 5, ease: "easeInOut", repeat: Infinity, delay: 4 }
             }}
           />
 
@@ -356,14 +362,15 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
             strokeWidth="0.12"
             strokeLinecap="round"
             filter="url(#glow1)"
-            initial={{ pathLength: 0 }}
+            strokeDasharray="35"
+            initial={{ strokeDashoffset: 35, opacity: 0 }}
             animate={{ 
-              pathLength: [0, 1],
-              opacity: [0, 0.4, 0.2]
+              strokeDashoffset: [35, 0, 0, -35],
+              opacity: [0, 0.4, 0.4, 0]
             }}
             transition={{ 
-              pathLength: { duration: 7, ease: "easeInOut", repeat: Infinity, delay: 1.5, repeatDelay: 5 },
-              opacity: { duration: 12, ease: "easeInOut", repeat: Infinity, delay: 1.5 }
+              strokeDashoffset: { duration: 8, ease: "easeInOut", repeat: Infinity, delay: 1.5 },
+              opacity: { duration: 8, ease: "easeInOut", repeat: Infinity, delay: 1.5 }
             }}
           />
 
@@ -375,13 +382,14 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
             strokeWidth="0.15"
             strokeLinecap="round"
             filter="url(#glow2)"
-            initial={{ pathLength: 0 }}
+            strokeDasharray="45"
+            initial={{ strokeDashoffset: 45, opacity: 0 }}
             animate={{ 
-              pathLength: [0, 1, 1, 0],
-              opacity: [0, 0.45, 0.25, 0]
+              strokeDashoffset: [45, 0, 0, -45],
+              opacity: [0, 0.45, 0.45, 0]
             }}
             transition={{ 
-              pathLength: { duration: 9, ease: "easeInOut", repeat: Infinity, delay: 5 },
+              strokeDashoffset: { duration: 9, ease: "easeInOut", repeat: Infinity, delay: 5 },
               opacity: { duration: 9, ease: "easeInOut", repeat: Infinity, delay: 5 }
             }}
           />
