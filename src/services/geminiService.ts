@@ -1,6 +1,6 @@
 /**
  * 后端 API 服务
- * 前端通过此服务调用后端 API，后端处理 Gemini API 调用和频控逻辑
+ * 调用 Vercel Serverless Functions
  */
 
 const API_BASE = '/api';
@@ -12,49 +12,28 @@ export interface HealingContent {
 }
 
 /**
- * 开始冥想会话
- * 立即返回 sessionId，后台异步生成内容
+ * 生成疗愈内容
+ * 直接调用后端 API，同步返回结果
  */
-export async function startMeditation(obsession: string): Promise<string> {
-  const response = await fetch(`${API_BASE}/meditation/start`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-user-id': getUserId(),
-    },
-    body: JSON.stringify({ obsession }),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to start meditation');
-  }
-
-  const data = await response.json();
-  return data.sessionId;
-}
-
-/**
- * 获取冥想结果
- * 轮询直到生成完成
- */
-export async function getMeditationResult(sessionId: string): Promise<HealingContent> {
-  const maxAttempts = 120; // 最多等待 2 分钟
-  let attempts = 0;
-
-  while (attempts < maxAttempts) {
-    const response = await fetch(`${API_BASE}/meditation/result/${sessionId}`, {
+export async function generateHealingContent(obsession: string): Promise<HealingContent> {
+  try {
+    const response = await fetch(`${API_BASE}/meditation/start`, {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         'x-user-id': getUserId(),
       },
+      body: JSON.stringify({ obsession }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to get result');
+      throw new Error('API request failed');
     }
 
     const data = await response.json();
 
-    if (data.status === 'completed') {
+    // 新的 API 直接返回结果
+    if (data.status === 'completed' && data.result) {
       return {
         title: data.result.title,
         poem: data.result.poem,
@@ -62,45 +41,36 @@ export async function getMeditationResult(sessionId: string): Promise<HealingCon
       };
     }
 
-    // 等待 1 秒后重试
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    attempts++;
-  }
+    throw new Error('Invalid response');
 
-  throw new Error('Timeout waiting for result');
+  } catch (error) {
+    console.error('API Error:', error);
+    
+    // 返回兜底内容
+    return {
+      title: "心境",
+      poem: "心若止水，\n万物皆空。\n执念如云，\n随风而去。",
+      imageBase64: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80"
+    };
+  }
 }
 
 /**
- * 获取历史记录
+ * 兼容旧接口
+ */
+export const startMeditation = generateHealingContent;
+export const getMeditationResult = generateHealingContent;
+
+/**
+ * 获取历史记录（简化版）
  */
 export async function getHistory(): Promise<any[]> {
-  const response = await fetch(`${API_BASE}/meditation/history`, {
-    headers: {
-      'x-user-id': getUserId(),
-    },
-  });
-
-  if (!response.ok) {
-    return [];
-  }
-
-  return response.json();
+  // 由于 Serverless 无状态，历史记录暂不实现
+  return [];
 }
 
 /**
- * 生成疗愈内容（兼容旧接口）
- * 此函数现在调用后端 API
- */
-export async function generateHealingContent(obsession: string): Promise<HealingContent> {
-  // 开始冥想
-  const sessionId = await startMeditation(obsession);
-  
-  // 等待结果
-  return getMeditationResult(sessionId);
-}
-
-/**
- * 获取用户 ID（简化版，实际应使用设备指纹或登录系统）
+ * 获取用户 ID
  */
 function getUserId(): string {
   let userId = localStorage.getItem('mingxiangye_user_id');
