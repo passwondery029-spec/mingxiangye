@@ -1,5 +1,4 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { GoogleGenAI, Type } from '@google/genai';
 
 // ==================== 兜底内容 ====================
 const FALLBACK_IMAGES = [
@@ -48,19 +47,20 @@ function getFallbackImage(text: string): string {
   return FALLBACK_IMAGES[hash % FALLBACK_IMAGES.length];
 }
 
-// ==================== Gemini API ====================
-async function generateWithGemini(obsession: string): Promise<{ 
+// ==================== ARK API 调用 ====================
+async function generateWithARK(obsession: string): Promise<{ 
   title: string; 
   poem: string; 
   imageBase64: string;
   debug?: any;
 }> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.ARK_API_KEY;
+  const modelId = process.env.ARK_MODEL_ID || 'ep-xxxxxxxxxxxx'; // 默认模型 ID，需要用户配置
   
   // 调试信息
   const debug: any = {
     hasApiKey: !!apiKey,
-    apiKeyPrefix: apiKey ? apiKey.substring(0, 10) + '...' : 'none',
+    hasModelId: !!process.env.ARK_MODEL_ID,
   };
 
   // 默认值
@@ -69,73 +69,89 @@ async function generateWithGemini(obsession: string): Promise<{
   let imageBase64 = getFallbackImage(obsession);
 
   if (!apiKey) {
-    console.error("[Gemini] GEMINI_API_KEY not set!");
+    console.error("[ARK] ARK_API_KEY not set");
     return { title, poem, imageBase64, debug: { ...debug, error: 'API key not set' } };
   }
 
   try {
-    console.log("[Gemini] Initializing client...");
-    const ai = new GoogleGenAI({ apiKey });
-
-    // 生成诗句
-    console.log("[Gemini] Generating poem...");
-    const poemResponse = await ai.models.generateContent({
-      model: "gemini-2.5-flash-preview-05-20",
-      contents: `用户输入了一个心中的执念或烦恼："${obsession}"。
-请你作为一位充满东方禅意与温柔的疗愈师，帮助他化解。
-你需要构思一个具体的视觉隐喻（比如：融化的冰山、绽放的莲花、散开的墨滴等）。
-然后：
-1. 写一首简短的现代诗（4-6行），用来化解这个执念。
-2. 为这首诗起一个简短的、充满诗意的小标题（2-5个字）。
-3. 写一段用于AI绘画的英文Prompt，风格为：Abstract Chinese ink wash painting, minimalist, ethereal watercolor, zen style.`,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            title: { type: Type.STRING },
-            poem: { type: Type.STRING },
-            imagePrompt: { type: Type.STRING }
+    console.log("[ARK] Calling model:", modelId);
+    
+    // 调用 ARK API（火山引擎）
+    const response = await fetch('https://ark.cn-beijing.volces.com/api/v3/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: modelId,
+        messages: [
+          {
+            role: 'system',
+            content: `你是一位充满东方禅意与温柔的疗愈师。当用户向你诉说执念或烦恼时，你会：
+1. 构思一个具体的视觉隐喻（比如：融化的冰山、绽放的莲花、散开的墨滴等）
+2. 写一首简短的现代诗（4-6行），用来化解这个执念
+3. 为这首诗起一个简短的、充满诗意的小标题（2-5个字）
+4. 返回 JSON 格式：{"title": "标题", "poem": "诗句用\\n换行", "imagePrompt": "用于生成图片的英文描述"}`
           },
-          required: ["title", "poem", "imagePrompt"]
-        }
-      }
+          {
+            role: 'user',
+            content: `我的执念是：「${obsession}」`
+          }
+        ],
+        temperature: 0.8,
+        max_tokens: 500
+      })
     });
 
-    const parsed = JSON.parse(poemResponse.text || "{}");
-    title = parsed.title || title;
-    poem = (parsed.poem || poem).replace(/\\n/g, '\n');
-    const imagePrompt = parsed.imagePrompt || "Abstract Chinese ink wash painting, zen style";
-    
-    debug.poemGenerated = true;
-    debug.title = title;
-    console.log("[Gemini] Poem generated:", title);
-
-    // 生成图片
-    console.log("[Gemini] Generating image...");
-    try {
-      const imageResult = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-preview-05-20',
-        contents: { parts: [{ text: imagePrompt }] }
-      });
-      
-      if (imageResult.candidates?.[0]?.content?.parts) {
-        for (const part of imageResult.candidates[0].content.parts) {
-          if (part.inlineData) {
-            imageBase64 = `data:${part.inlineData.mimeType || 'image/jpeg'};base64,${part.inlineData.data}`;
-            debug.imageGenerated = true;
-            console.log("[Gemini] Image generated successfully");
-            break;
-          }
-        }
-      }
-    } catch (imgErr: any) {
-      console.error("[Gemini] Image failed:", imgErr.message);
-      debug.imageError = imgErr.message;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[ARK] API error:", response.status, errorText);
+      debug.error = `API error: ${response.status}`;
+      return { title, poem, imageBase64, debug };
     }
 
+    const data = await response.json();
+    console.log("[ARK] Response received");
+    
+    const content = data.choices?.[0]?.message?.content || '';
+    
+    // 尝试解析 JSON
+    let parsed;
+    try {
+      // 提取 JSON 部分
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        parsed = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('No JSON found');
+      }
+    } catch (parseErr) {
+      console.error("[ARK] Parse error:", parseErr);
+      // 如果解析失败，直接使用返回的内容作为诗句
+      parsed = {
+        title: "心境",
+        poem: content.replace(/\n/g, '\\n'),
+        imagePrompt: "Abstract Chinese ink wash painting, zen style"
+      };
+    }
+
+    title = parsed.title || title;
+    poem = (parsed.poem || poem).replace(/\\n/g, '\n');
+    debug.poemGenerated = true;
+    debug.title = title;
+    console.log("[ARK] Poem generated:", title);
+
+    // 图片生成：使用 ARK 的文生图能力（如果支持）或使用精选图片
+    // 由于 ARK 主要是文本模型，我们使用精选的禅意图片作为配图
+    // 可以根据诗句内容选择匹配的图片
+    const imagePrompt = parsed.imagePrompt || obsession;
+    const hash = imagePrompt.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    imageBase64 = FALLBACK_IMAGES[hash % FALLBACK_IMAGES.length];
+    debug.imageSource = 'fallback';
+
   } catch (e: any) {
-    console.error("[Gemini] API failed:", e.message);
+    console.error("[ARK] Error:", e.message);
     debug.error = e.message;
     debug.errorType = e.constructor.name;
   }
@@ -166,7 +182,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // 生成内容
-    const result = await generateWithGemini(obsession);
+    const result = await generateWithARK(obsession);
 
     return res.status(200).json({
       sessionId: `session_${Date.now()}`,
@@ -176,7 +192,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         poem: result.poem,
         imageBase64: result.imageBase64,
       },
-      // 仅在测试时返回调试信息，生产环境可移除
       _debug: result.debug
     });
 

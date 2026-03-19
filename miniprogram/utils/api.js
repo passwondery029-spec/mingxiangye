@@ -1,4 +1,5 @@
 // utils/api.js - API 调用封装
+// 后端使用火山引擎 ARK 模型生成诗句
 
 const app = getApp();
 
