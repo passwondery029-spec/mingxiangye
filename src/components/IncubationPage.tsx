@@ -483,12 +483,12 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
             {/* 云英引导系列 */}
             <div className="w-full max-w-md mb-6">
               <p className="text-primary/60 text-xs tracking-wider mb-3">云英引导系列</p>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 gap-3">
                 {MUSIC_TRACKS.filter(t => t.type === 'guided').map(track => (
                   <motion.button
                     key={track.id}
                     onClick={() => setSelectedMusic(track)}
-                    className={`p-3 rounded-xl text-center transition-all ${
+                    className={`p-4 rounded-xl text-center transition-all ${
                       selectedMusic?.id === track.id 
                         ? 'bg-primary/10 border-2 border-primary' 
                         : 'bg-primary/5 border border-primary/20 hover:border-primary/40'
@@ -496,8 +496,9 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <div className="text-xl mb-1">{track.icon}</div>
-                    <div className="text-xs font-serif-sc text-primary truncate">{track.name}</div>
+                    <div className="text-2xl mb-2">{track.icon}</div>
+                    <div className="text-sm font-serif-sc text-primary mb-1">{track.name}</div>
+                    <div className="text-xs text-primary/50 truncate">{track.description}</div>
                   </motion.button>
                 ))}
               </div>
