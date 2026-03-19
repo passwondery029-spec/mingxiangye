@@ -1,124 +1,377 @@
-/* pages/incubation/incubation.wxss */
+/* pages/incubation/incubation.wxss - 冥想过程页样式 */
 
 .container {
-  position: relative;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  background: linear-gradient(135deg, #1a2f30 0%, #2d4a4a 50%, #1a2f30 100%);
+  position: relative;
   overflow: hidden;
 }
 
-/* 纸质纹理 */
+/* 纸张纹理 */
 .paper-texture {
   position: absolute;
-  inset: 0;
-  background-image: url('https://www.transparenttextures.com/patterns/rice-paper.png');
-  opacity: 0.2;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.03;
   pointer-events: none;
 }
 
-/* 水波纹容器 */
-.ripple-container {
+/* 动态背景 */
+.ambient-bg {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   pointer-events: none;
 }
 
-.ripple {
-  position: absolute;
-  border-radius: 50%;
-  border: 4rpx solid rgba(74, 108, 111, 0.4);
-  animation: rippleExpand 12s ease-out infinite;
-}
-
-.ripple-1 { animation-delay: 0s; }
-.ripple-2 { animation-delay: 4s; }
-.ripple-3 { animation-delay: 8s; }
-
-@keyframes rippleExpand {
-  0% {
-    width: 100rpx;
-    height: 100rpx;
-    opacity: 0.8;
-    border-width: 4rpx;
-  }
-  100% {
-    width: 2000rpx;
-    height: 2000rpx;
-    opacity: 0;
-    border-width: 1rpx;
-  }
-}
-
-/* 呼吸光晕 */
-.breathing-glow {
+.ambient-light {
   position: absolute;
   width: 400rpx;
   height: 400rpx;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(74, 108, 111, 0.2) 0%, transparent 70%);
-  transition: all 4s ease-in-out;
+  filter: blur(80rpx);
+  opacity: 0.15;
 }
 
-.breathing-glow.inhale {
-  transform: scale(1.2);
-  opacity: 0.8;
+.light-1 {
+  top: -100rpx;
+  right: -100rpx;
+  background: rgba(255, 183, 77, 0.3);
+  animation: float1 8s ease-in-out infinite;
 }
 
-.breathing-glow.exhale {
-  transform: scale(1);
-  opacity: 0.4;
+.light-2 {
+  bottom: 20%;
+  left: -100rpx;
+  background: rgba(74, 108, 111, 0.4);
+  animation: float2 10s ease-in-out infinite;
 }
 
-/* 主内容 */
-.main-content {
+@keyframes float1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-30rpx, 30rpx); }
+}
+
+@keyframes float2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(30rpx, -30rpx); }
+}
+
+/* ==================== 阶段容器 ==================== */
+.stage-container {
   position: relative;
-  z-index: 10;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 60rpx 40rpx;
+  min-height: 100vh;
 }
 
-/* 呼吸文字 */
-.breath-text {
+/* ==================== 引导阶段 ==================== */
+.guide-title {
   font-size: 48rpx;
-  letter-spacing: 20rpx;
-  color: var(--text-primary);
-  animation: breathFade 4s ease-in-out infinite;
-}
-
-@keyframes breathFade {
-  0%, 100% { opacity: 0.8; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.05); }
-}
-
-/* 计时器 */
-.timer {
-  margin-top: 40rpx;
-  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 300;
+  margin-bottom: 60rpx;
   letter-spacing: 8rpx;
-  color: var(--text-hint);
-  font-family: 'SF Mono', 'Monaco', monospace;
 }
 
-/* 跳过按钮 */
-.skip-btn {
-  position: absolute;
-  bottom: 80rpx;
-  left: 50%;
-  transform: translateX(-50%);
+.step-dots {
+  display: flex;
+  gap: 24rpx;
+  margin-bottom: 80rpx;
+}
+
+.dot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: all 0.5s ease;
+}
+
+.dot.active {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.dot.current {
+  background: rgba(255, 183, 77, 0.8);
+  transform: scale(1.3);
+}
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+}
+
+.step-icon {
+  font-size: 120rpx;
+  margin-bottom: 40rpx;
+}
+
+.step-title {
+  font-size: 56rpx;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 300;
+  margin-bottom: 20rpx;
+  letter-spacing: 4rpx;
+}
+
+.step-desc {
+  font-size: 32rpx;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 300;
+  letter-spacing: 2rpx;
+}
+
+.next-btn {
+  margin-top: 100rpx;
+  padding: 28rpx 80rpx;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+  border-radius: 60rpx;
+}
+
+.next-btn:active {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(0.98);
+}
+
+.btn-text {
+  font-size: 34rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 300;
+  letter-spacing: 4rpx;
+}
+
+/* ==================== 音乐选择阶段 ==================== */
+.music-stage {
+  padding-top: 80rpx;
+}
+
+.music-title {
+  font-size: 48rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 300;
+  margin-bottom: 16rpx;
+  letter-spacing: 6rpx;
+}
+
+.music-subtitle {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 60rpx;
+}
+
+.music-section {
+  width: 100%;
+  margin-bottom: 50rpx;
+}
+
+.section-label {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.5);
+  margin-left: 20rpx;
+  margin-bottom: 20rpx;
+  display: block;
+}
+
+.music-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.music-grid.guided .music-item {
+  width: calc(25% - 15rpx);
+}
+
+.music-grid.ambient .music-item {
+  width: calc(33.33% - 14rpx);
+}
+
+.music-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx 10rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2rpx solid rgba(255, 255, 255, 0.1);
+  border-radius: 20rpx;
+  transition: all 0.3s ease;
+}
+
+.music-item.selected {
+  background: rgba(255, 183, 77, 0.15);
+  border-color: rgba(255, 183, 77, 0.5);
+}
+
+.music-item:active {
+  transform: scale(0.96);
+}
+
+.music-icon {
+  font-size: 48rpx;
+  margin-bottom: 12rpx;
+}
+
+.music-name {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 300;
+  text-align: center;
+}
+
+.selected-hint {
+  margin-top: 40rpx;
   padding: 20rpx 40rpx;
-  background-color: rgba(74, 108, 111, 0.05);
-  border-radius: 100rpx;
+  background: rgba(74, 108, 111, 0.3);
+  border-radius: 30rpx;
+}
+
+.hint-text {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.start-btn {
+  margin-top: 60rpx;
+  padding: 32rpx 100rpx;
+  background: rgba(255, 183, 77, 0.2);
+  border: 2rpx solid rgba(255, 183, 77, 0.5);
+  border-radius: 60rpx;
+  transition: all 0.3s ease;
+}
+
+.start-btn.disabled {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.start-btn:active:not(.disabled) {
+  transform: scale(0.98);
+}
+
+.start-btn .btn-text {
+  color: rgba(255, 183, 77, 0.9);
+}
+
+.start-btn.disabled .btn-text {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ==================== 冥想阶段 ==================== */
+.meditation-stage {
+  justify-content: center;
+}
+
+.current-music {
+  position: absolute;
+  top: 60rpx;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+}
+
+.current-music-icon {
+  font-size: 36rpx;
+}
+
+.current-music-name {
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.music-control {
+  position: absolute;
+  top: 60rpx;
+  right: 40rpx;
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+.control-icon {
+  font-size: 32rpx;
+}
+
+.breath-container {
+  margin: 80rpx 0 60rpx;
+}
+
+.breath-circle {
+  width: 300rpx;
+  height: 300rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2rpx solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 4s ease-in-out;
+}
+
+.breath-circle.inhale {
+  transform: scale(1.15);
+  border-color: rgba(255, 183, 77, 0.3);
+  box-shadow: 0 0 60rpx rgba(255, 183, 77, 0.15);
+}
+
+.breath-circle.exhale {
+  transform: scale(1);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: none;
+}
+
+.breath-text {
+  font-size: 44rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 300;
+  letter-spacing: 8rpx;
+}
+
+.timer {
+  font-size: 96rpx;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 200;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 4rpx;
+}
+
+.skip-btn {
+  margin-top: 100rpx;
+  padding: 24rpx 60rpx;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 40rpx;
+}
+
+.skip-btn:active {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .skip-text {
-  font-size: 24rpx;
-  letter-spacing: 4rpx;
-  color: var(--text-hint);
+  font-size: 28rpx;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 300;
+}
+
+/* 字体类 */
+.font-serif {
+  font-family: "Songti SC", "SimSun", serif;
 }

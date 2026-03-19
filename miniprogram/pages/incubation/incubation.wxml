@@ -1,29 +1,110 @@
 <!--pages/incubation/incubation.wxml - 冥想过程页-->
 <view class="container">
-  <!-- 纸质纹理 -->
+  <!-- 背景纹理 -->
   <view class="paper-texture"></view>
   
-  <!-- 水波纹背景 -->
-  <view class="ripple-container">
-    <view class="ripple ripple-1"></view>
-    <view class="ripple ripple-2"></view>
-    <view class="ripple ripple-3"></view>
+  <!-- 动态背景 -->
+  <view class="ambient-bg">
+    <view class="ambient-light light-1"></view>
+    <view class="ambient-light light-2"></view>
   </view>
-  
-  <!-- 呼吸光晕 -->
-  <view class="breathing-glow {{phase === '吸气' ? 'inhale' : 'exhale'}}"></view>
 
-  <!-- 主内容 -->
-  <view class="main-content">
+  <!-- ==================== 引导阶段 ==================== -->
+  <view class="stage-container" wx:if="{{stage === 'guide'}}">
+    <!-- 标题 -->
+    <text class="guide-title">准备冥想</text>
+    
+    <!-- 步骤指示器 -->
+    <view class="step-dots">
+      <view class="dot {{currentStep >= index ? 'active' : ''}} {{currentStep === index ? 'current' : ''}}" 
+            wx:for="{{guideSteps}}" wx:key="index"></view>
+    </view>
+    
+    <!-- 当前步骤 -->
+    <view class="step-content">
+      <text class="step-icon">{{guideSteps[currentStep].icon}}</text>
+      <text class="step-title">{{guideSteps[currentStep].title}}</text>
+      <text class="step-desc">{{guideSteps[currentStep].desc}}</text>
+    </view>
+    
+    <!-- 下一步按钮 -->
+    <view class="next-btn" bindtap="handleNextStep">
+      <text class="btn-text">{{currentStep < guideSteps.length - 1 ? '下一步' : '选择音乐'}}</text>
+    </view>
+  </view>
+
+  <!-- ==================== 音乐选择阶段 ==================== -->
+  <view class="stage-container music-stage" wx:if="{{stage === 'music'}}">
+    <text class="music-title">选择冥想音乐</text>
+    <text class="music-subtitle">选择一段音乐陪伴你的冥想时光</text>
+    
+    <!-- 云英引导系列 -->
+    <view class="music-section">
+      <text class="section-label">云英引导系列</text>
+      <view class="music-grid guided">
+        <view class="music-item {{selectedMusic.id === item.id ? 'selected' : ''}}" 
+              wx:for="{{musicTracks}}" wx:key="id"
+              wx:if="{{item.type === 'guided'}}"
+              data-id="{{item.id}}"
+              bindtap="handleSelectMusic">
+          <text class="music-icon">{{item.icon}}</text>
+          <text class="music-name">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 自然之声 -->
+    <view class="music-section">
+      <text class="section-label">自然之声</text>
+      <view class="music-grid ambient">
+        <view class="music-item {{selectedMusic.id === item.id ? 'selected' : ''}}" 
+              wx:for="{{musicTracks}}" wx:key="id"
+              wx:if="{{item.type === 'ambient'}}"
+              data-id="{{item.id}}"
+              bindtap="handleSelectMusic">
+          <text class="music-icon">{{item.icon}}</text>
+          <text class="music-name">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 已选提示 -->
+    <view class="selected-hint" wx:if="{{selectedMusic}}">
+      <text class="hint-text">已选择：{{selectedMusic.name}} · {{selectedMusic.desc}}</text>
+    </view>
+    
+    <!-- 开始按钮 -->
+    <view class="start-btn {{selectedMusic ? '' : 'disabled'}}" bindtap="handleStartMeditation">
+      <text class="btn-text">开始冥想</text>
+    </view>
+  </view>
+
+  <!-- ==================== 冥想阶段 ==================== -->
+  <view class="stage-container meditation-stage" wx:if="{{stage === 'meditation'}}">
+    <!-- 当前音乐 -->
+    <view class="current-music" wx:if="{{selectedMusic}}">
+      <text class="current-music-icon">{{selectedMusic.icon}}</text>
+      <text class="current-music-name">{{selectedMusic.name}}</text>
+    </view>
+    
+    <!-- 音乐控制 -->
+    <view class="music-control" bindtap="togglePlay">
+      <text class="control-icon">{{isPlaying ? '🔊' : '🔇'}}</text>
+    </view>
+    
     <!-- 呼吸引导 -->
-    <text class="breath-text font-serif">{{phase}}</text>
+    <view class="breath-container">
+      <view class="breath-circle {{phase === '吸气' ? 'inhale' : 'exhale'}}">
+        <text class="breath-text font-serif">{{phase}}</text>
+      </view>
+    </view>
     
     <!-- 计时器 -->
     <text class="timer">{{formatTime}}</text>
-  </view>
-
-  <!-- 跳过按钮 -->
-  <view class="skip-btn" bindtap="handleSkip">
-    <text class="skip-text font-serif">{{skipButtonText}}</text>
+    
+    <!-- 跳过按钮 -->
+    <view class="skip-btn" bindtap="handleSkip">
+      <text class="skip-text font-serif">{{skipButtonText}}</text>
+    </view>
   </view>
 </view>

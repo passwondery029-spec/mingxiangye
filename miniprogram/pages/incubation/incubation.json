@@ -1,4 +1,5 @@
 {
-  "navigationStyle": "custom",
-  "usingComponents": {}
+  "navigationBarTitleText": "冥想时光",
+  "backgroundColor": "#1a2f30",
+  "navigationStyle": "default"
 }
