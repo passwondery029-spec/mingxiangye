@@ -463,7 +463,7 @@ export function getMatchedImage(obsession: string): { url: string; tags: string[
   const directKeywords = obsession.split(/[，。、！？\s,.\!?]+/).filter(k => k.length > 0);
   keywords.push(...directKeywords);
   
-  console.log('[匹配] 提取的关键词:', [...new Set(keywords)]);
+  console.log('[匹配] 提取的关键词:', Array.from(new Set(keywords)));
   
   // 计算所有图片的匹配分数
   const scoredImages = IMAGE_LIBRARY.map(img => ({
@@ -499,6 +499,3 @@ export function getRandomImage(): string {
 
 // 导出完整图片库
 export { IMAGE_LIBRARY };
-
-// 导出类型
-export type { CuratedImage };
