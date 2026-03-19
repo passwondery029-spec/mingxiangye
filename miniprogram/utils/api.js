@@ -1,5 +1,6 @@
 // utils/api.js - API 调用封装
 // 后端使用火山引擎 ARK 模型生成诗句
+// 图片使用 100 张精选绘画风格图片库，支持关键词匹配
 
 const app = getApp();
 
@@ -26,16 +27,16 @@ function generateHealingContent(obsession) {
           resolve({
             title: res.data.result.title,
             poem: res.data.result.poem,
-            imageBase64: res.data.result.imageBase64
+            imageBase64: res.data.result.imageBase64,
+            matchedTags: res.data.result.matchedTags || [],
+            matchedEmotions: res.data.result.matchedEmotions || []
           });
         } else {
-          // 使用兜底内容
           resolve(getFallbackContent(obsession));
         }
       },
       fail(err) {
         console.error('API 调用失败:', err);
-        // 返回兜底内容
         resolve(getFallbackContent(obsession));
       }
     });
@@ -68,7 +69,9 @@ function getFallbackContent(obsession) {
   return {
     title: '心境',
     poem: poems[hash % poems.length],
-    imageBase64: images[hash % images.length]
+    imageBase64: images[hash % images.length],
+    matchedTags: [],
+    matchedEmotions: []
   };
 }
 
