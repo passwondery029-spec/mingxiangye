@@ -15,6 +15,7 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
   const [artPiece, setArtPiece] = useState<ArtPiece | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [isSkipping, setIsSkipping] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(true); // 新增：生成状态
 
   useEffect(() => {
     // Breathing cycle
@@ -39,8 +40,12 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
   }, []);
 
   useEffect(() => {
-    // Start generation in background
+    // Start generation immediately when meditation begins
+    console.log('[冥想] 开始后台生成...');
+    setIsGenerating(true);
+    
     generateHealingContent(obsession).then(result => {
+      console.log('[冥想] 生成完成:', result.title);
       setArtPiece({
         id: Date.now().toString(),
         obsession,
@@ -50,6 +55,7 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
         date: new Date().toISOString()
       });
       setIsReady(true);
+      setIsGenerating(false);
     }).catch(err => {
       console.error("Incubation error:", err);
       setArtPiece({
@@ -61,6 +67,7 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
         date: new Date().toISOString()
       });
       setIsReady(true);
+      setIsGenerating(false);
     });
   }, [obsession]);
 
@@ -151,7 +158,11 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
           disabled={isSkipping}
           className="absolute bottom-10 px-6 py-2.5 rounded-full bg-primary/5 hover:bg-primary/10 text-xs text-primary/50 hover:text-primary/80 transition-colors tracking-widest font-serif-sc disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
         >
-          {isSkipping ? (isReady ? "即将展现..." : "正在为您凝结画作...") : "提前结束冥想"}
+          {isSkipping ? (
+            isReady ? "即将展现..." : "正在凝结画作..."
+          ) : (
+            isGenerating ? "正在生成画作..." : "提前结束冥想"
+          )}
         </button>
       </div>
     </motion.div>

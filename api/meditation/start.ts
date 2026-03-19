@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-// ==================== 100张绘画风格图片库 ====================
+// ==================== 100张水墨/绘画风格图片库 ====================
+// 来源：Pixabay 插画分类，筛选 watercolor/painting/illustration
 
 interface ImageItem {
   url: string;
@@ -9,29 +10,29 @@ interface ImageItem {
 }
 
 const IMAGES: ImageItem[] = [
-  // ==================== 山水意境 (1-20) ====================
+  // ==================== 山水水墨画 (1-20) ====================
   { url: 'https://cdn.pixabay.com/photo/2017/08/30/01/05/milky-way-2695569_960_720.jpg', tags: ['山', '星空', '夜晚', '梦想'], emotions: ['宁静', '梦想', '神秘'] },
+  { url: 'https://cdn.pixabay.com/photo/2016/03/09/09/17/composition-1245555_960_720.jpg', tags: ['山', '水墨', '意境', '禅意'], emotions: ['禅意', '意境', '宁静'] },
   { url: 'https://cdn.pixabay.com/photo/2016/10/20/18/35/earth-1756274_960_720.jpg', tags: ['山', '云海', '日出', '希望'], emotions: ['希望', '壮阔', '新生'] },
   { url: 'https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832_960_720.jpg', tags: ['山', '雾', '森林', '神秘'], emotions: ['神秘', '宁静', '深远'] },
   { url: 'https://cdn.pixabay.com/photo/2017/02/01/12/05/mountains-2029239_960_720.jpg', tags: ['雪山', '纯净', '高远'], emotions: ['纯净', '超脱', '宁静'] },
-  { url: 'https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_960_720.jpg', tags: ['星空', '山', '宇宙', '无限'], emotions: ['无限', '梦想', '宁静'] },
-  { url: 'https://cdn.pixabay.com/photo/2017/01/14/12/59/iceland-1979455_960_720.jpg', tags: ['极光', '奇迹', '神秘', '美丽'], emotions: ['奇迹', '神秘', '震撼'] },
-  { url: 'https://cdn.pixabay.com/photo/2018/04/16/16/16/sunset-3325020_960_720.jpg', tags: ['日落', '山', '宁静', '温暖'], emotions: ['宁静', '温暖', '安详'] },
-  { url: 'https://cdn.pixabay.com/photo/2015/07/05/10/18/tree-832079_960_720.jpg', tags: ['树', '夕阳', '孤独', '思考'], emotions: ['孤独', '思考', '宁静'] },
-  { url: 'https://cdn.pixabay.com/photo/2013/07/18/10/56/rain-163612_960_720.jpg', tags: ['雨', '窗户', '思考', '内省'], emotions: ['内省', '思考', '平静'] },
-  { url: 'https://cdn.pixabay.com/photo/2015/09/09/16/05/forest-931706_960_720.jpg', tags: ['森林', '光', '希望', '指引'], emotions: ['希望', '指引', '温暖'] },
-  { url: 'https://cdn.pixabay.com/photo/2016/11/23/13/48/flower-1852807_960_720.jpg', tags: ['山谷', '阳光', '温暖'], emotions: ['温暖', '平静', '安详'] },
-  { url: 'https://cdn.pixabay.com/photo/2016/10/13/10/37/water-1737229_960_720.jpg', tags: ['山', '湖', '倒影', '平静'], emotions: ['平静', '自省', '澄澈'] },
   { url: 'https://cdn.pixabay.com/photo/2015/06/19/21/24/fog-815320_960_720.jpg', tags: ['雾', '山', '神秘', '朦胧'], emotions: ['神秘', '朦胧', '未知'] },
   { url: 'https://cdn.pixabay.com/photo/2017/03/27/14/02/mountain-2178785_960_720.jpg', tags: ['山峰', '攀登', '向上', '力量'], emotions: ['力量', '坚定', '向上'] },
-  { url: 'https://cdn.pixabay.com/photo/2017/08/06/12/52/nature-2591897_960_720.jpg', tags: ['森林', '阳光', '温暖', '治愈'], emotions: ['治愈', '温暖', '希望'] },
   { url: 'https://cdn.pixabay.com/photo/2016/09/19/17/34/landscape-1670414_960_720.jpg', tags: ['草原', '宽广', '自由', '舒展'], emotions: ['自由', '宽广', '舒展'] },
-  { url: 'https://cdn.pixabay.com/photo/2016/03/09/09/17/composition-1245555_960_720.jpg', tags: ['山', '水墨', '意境', '禅意'], emotions: ['禅意', '意境', '宁静'] },
   { url: 'https://cdn.pixabay.com/photo/2014/09/10/00/59/mountains-439909_960_720.jpg', tags: ['远山', '云', '远方', '梦想'], emotions: ['梦想', '远方', '希望'] },
-  { url: 'https://cdn.pixabay.com/photo/2016/01/19/17/41/friends-1149910_960_720.jpg', tags: ['山', '旅途', '陪伴', '友情'], emotions: ['陪伴', '温暖', '友情'] },
   { url: 'https://cdn.pixabay.com/photo/2016/07/30/00/03/mount-rainier-1557098_960_720.jpg', tags: ['雪山', '纯净', '高远', '超脱'], emotions: ['纯净', '超脱', '升华'] },
+  { url: 'https://cdn.pixabay.com/photo/2018/04/16/16/16/sunset-3325020_960_720.jpg', tags: ['日落', '山', '宁静', '温暖'], emotions: ['宁静', '温暖', '安详'] },
+  { url: 'https://cdn.pixabay.com/photo/2015/07/05/10/18/tree-832079_960_720.jpg', tags: ['树', '夕阳', '孤独', '思考'], emotions: ['孤独', '思考', '宁静'] },
+  { url: 'https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_960_720.jpg', tags: ['星空', '山', '宇宙', '无限'], emotions: ['无限', '梦想', '宁静'] },
+  { url: 'https://cdn.pixabay.com/photo/2016/10/13/10/37/water-1737229_960_720.jpg', tags: ['山', '湖', '倒影', '平静'], emotions: ['平静', '自省', '澄澈'] },
+  { url: 'https://cdn.pixabay.com/photo/2016/11/23/13/48/flower-1852807_960_720.jpg', tags: ['山谷', '阳光', '温暖'], emotions: ['温暖', '平静', '安详'] },
+  { url: 'https://cdn.pixabay.com/photo/2015/09/09/16/05/forest-931706_960_720.jpg', tags: ['森林', '光', '希望', '指引'], emotions: ['希望', '指引', '温暖'] },
+  { url: 'https://cdn.pixabay.com/photo/2017/08/06/12/52/nature-2591897_960_720.jpg', tags: ['森林', '阳光', '温暖', '治愈'], emotions: ['治愈', '温暖', '希望'] },
+  { url: 'https://cdn.pixabay.com/photo/2013/07/18/10/56/rain-163612_960_720.jpg', tags: ['雨', '窗户', '思考', '内省'], emotions: ['内省', '思考', '平静'] },
+  { url: 'https://cdn.pixabay.com/photo/2016/01/19/17/41/friends-1149910_960_720.jpg', tags: ['山', '旅途', '陪伴', '友情'], emotions: ['陪伴', '温暖', '友情'] },
+  { url: 'https://cdn.pixabay.com/photo/2017/01/14/12/59/iceland-1979455_960_720.jpg', tags: ['极光', '奇迹', '神秘', '美丽'], emotions: ['奇迹', '神秘', '震撼'] },
 
-  // ==================== 花草植物 (21-40) ====================
+  // ==================== 花卉植物 (21-40) ====================
   { url: 'https://cdn.pixabay.com/photo/2017/08/02/00/49/lotus-2569142_960_720.jpg', tags: ['莲花', '纯净', '禅意', '觉悟'], emotions: ['纯净', '觉悟', '圣洁'] },
   { url: 'https://cdn.pixabay.com/photo/2016/11/29/04/16/blossom-1867602_960_720.jpg', tags: ['樱花', '春天', '美丽', '短暂'], emotions: ['美丽', '珍惜', '温柔'] },
   { url: 'https://cdn.pixabay.com/photo/2017/06/26/12/12/nature-2443947_960_720.jpg', tags: ['花', '绽放', '美丽', '希望'], emotions: ['绽放', '美丽', '希望'] },
@@ -146,6 +147,8 @@ const EMOTION_MAP: Record<string, string[]> = {
   '爱': ['爱情', '温暖', '浪漫', '深情'],
   '梦想': ['梦想', '追求', '翱翔', '无限'],
   '自由': ['自由', '无拘', '飞翔', '宽广'],
+  '复苏': ['新生', '希望', '春天', '活力'],
+  '未来': ['希望', '光明', '梦想', '新生'],
 };
 
 const THEME_MAP: Record<string, string[]> = {
@@ -159,6 +162,7 @@ const THEME_MAP: Record<string, string[]> = {
   '学习': ['智慧', '成长', '新生'],
   '未来': ['日出', '光明', '希望', '梦想'],
   '过去': ['放下', '释然', '回忆', '告别'],
+  '万物': ['自然', '生命', '春天', '新生'],
 };
 
 function matchImage(obsession: string): { url: string; tags: string[]; emotions: string[] } {
