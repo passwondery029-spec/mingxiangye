@@ -208,25 +208,9 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
         >
           {/* 发光滤镜 */}
           <defs>
-            <filter id="glow1" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="1" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-            <filter id="glow2" x="-50%" y="-50%" width="200%" height="200%">
+            <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
               <feGaussianBlur stdDeviation="0.8" result="blur" />
               <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-            <filter id="glowSoft" x="-100%" y="-100%" width="300%" height="300%">
-              <feGaussianBlur stdDeviation="1.5" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
                 <feMergeNode in="blur" />
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
@@ -234,163 +218,93 @@ export default function IncubationPage({ obsession, onComplete }: IncubationPage
             </filter>
           </defs>
 
-          {/* 画笔轨迹1 - 主曲线：绘制 → 停留 → 从头消失 */}
+          {/* 曲线1 - 第一条出现，横贯屏幕 */}
           <motion.path
-            d="M10,90 Q5,75 15,70 T25,55 Q30,45 35,50 T50,35 Q55,25 60,30 T75,20 Q85,15 90,25"
+            d="M-5,30 Q10,20 25,28 T45,35 Q60,40 75,32 T95,25 Q110,20 105,30"
             fill="none"
-            stroke="rgba(74,108,111,0.6)"
-            strokeWidth="0.3"
+            stroke="rgba(74,108,111,0.5)"
+            strokeWidth="0.25"
             strokeLinecap="round"
-            filter="url(#glowSoft)"
-            strokeDasharray="100"
-            initial={{ strokeDashoffset: 100, opacity: 0 }}
+            filter="url(#glow)"
+            strokeDasharray="150"
+            initial={{ strokeDashoffset: 150, opacity: 0, translateY: 0 }}
             animate={{ 
-              strokeDashoffset: [100, 0, 0, -100],
-              opacity: [0, 0.8, 0.8, 0]
+              strokeDashoffset: [150, 0, 0, -150],
+              opacity: [0, 0.6, 0.6, 0],
+              translateY: [0, 5, -3, 8]
             }}
             transition={{ 
-              strokeDashoffset: { duration: 10, ease: "easeInOut", repeat: Infinity },
-              opacity: { duration: 10, ease: "easeInOut", repeat: Infinity }
+              strokeDashoffset: { duration: 18, ease: "easeInOut", repeat: Infinity },
+              opacity: { duration: 18, ease: "easeInOut", repeat: Infinity },
+              translateY: { duration: 25, ease: "easeInOut", repeat: Infinity }
             }}
           />
           
-          {/* 画笔轨迹2 - 快速游走 */}
+          {/* 曲线2 - 延迟出现，不同路径 */}
           <motion.path
-            d="M85,85 Q90,70 80,65 T70,50 Q65,40 75,35 T60,25 Q50,20 45,30 T30,15"
+            d="M-5,55 Q15,60 30,50 T55,58 Q70,65 85,55 T105,48"
             fill="none"
-            stroke="rgba(107,142,143,0.5)"
-            strokeWidth="0.25"
+            stroke="rgba(107,142,143,0.45)"
+            strokeWidth="0.22"
             strokeLinecap="round"
-            filter="url(#glow1)"
-            strokeDasharray="80"
-            initial={{ strokeDashoffset: 80, opacity: 0 }}
+            filter="url(#glow)"
+            strokeDasharray="130"
+            initial={{ strokeDashoffset: 130, opacity: 0, translateX: 0 }}
             animate={{ 
-              strokeDashoffset: [80, 0, 0, -80],
-              opacity: [0, 0.7, 0.7, 0]
+              strokeDashoffset: [130, 0, 0, -130],
+              opacity: [0, 0.55, 0.55, 0],
+              translateX: [0, -5, 3, -8]
             }}
             transition={{ 
-              strokeDashoffset: { duration: 7, ease: "easeInOut", repeat: Infinity, delay: 2 },
-              opacity: { duration: 7, ease: "easeInOut", repeat: Infinity, delay: 2 }
+              strokeDashoffset: { duration: 20, ease: "easeInOut", repeat: Infinity, delay: 4 },
+              opacity: { duration: 20, ease: "easeInOut", repeat: Infinity, delay: 4 },
+              translateX: { duration: 22, ease: "easeInOut", repeat: Infinity, delay: 4 }
             }}
           />
 
-          {/* 画笔轨迹3 - 蜿蜒曲线 */}
+          {/* 曲线3 - 再延迟出现 */}
           <motion.path
-            d="M5,60 Q15,55 20,60 T35,45 Q40,35 50,40 T60,30 Q70,25 75,35 T90,40"
-            fill="none"
-            stroke="rgba(74,108,111,0.4)"
-            strokeWidth="0.2"
-            strokeLinecap="round"
-            filter="url(#glow2)"
-            strokeDasharray="90"
-            initial={{ strokeDashoffset: 90, opacity: 0 }}
-            animate={{ 
-              strokeDashoffset: [90, 0, 0, -90],
-              opacity: [0, 0.6, 0.6, 0]
-            }}
-            transition={{ 
-              strokeDashoffset: { duration: 12, ease: "easeInOut", repeat: Infinity, delay: 1 },
-              opacity: { duration: 12, ease: "easeInOut", repeat: Infinity, delay: 1 }
-            }}
-          />
-
-          {/* 画笔轨迹4 - 轻柔点缀 */}
-          <motion.path
-            d="M30,80 Q25,70 35,65 T45,55 Q50,48 55,55 T70,50"
+            d="M-5,75 Q20,70 35,80 T60,72 Q80,65 95,78 T110,70"
             fill="none"
             stroke="rgba(184,142,108,0.4)"
             strokeWidth="0.2"
             strokeLinecap="round"
-            filter="url(#glow1)"
-            strokeDasharray="50"
-            initial={{ strokeDashoffset: 50, opacity: 0 }}
+            filter="url(#glow)"
+            strokeDasharray="140"
+            initial={{ strokeDashoffset: 140, opacity: 0, translateX: 0, translateY: 0 }}
             animate={{ 
-              strokeDashoffset: [50, 0, 0, -50],
-              opacity: [0, 0.5, 0.5, 0]
+              strokeDashoffset: [140, 0, 0, -140],
+              opacity: [0, 0.5, 0.5, 0],
+              translateX: [0, 4, -6, 2],
+              translateY: [0, -4, 3, -5]
             }}
             transition={{ 
-              strokeDashoffset: { duration: 6, ease: "easeInOut", repeat: Infinity, delay: 3 },
-              opacity: { duration: 6, ease: "easeInOut", repeat: Infinity, delay: 3 }
+              strokeDashoffset: { duration: 22, ease: "easeInOut", repeat: Infinity, delay: 8 },
+              opacity: { duration: 22, ease: "easeInOut", repeat: Infinity, delay: 8 },
+              translateX: { duration: 20, ease: "easeInOut", repeat: Infinity, delay: 8 },
+              translateY: { duration: 18, ease: "easeInOut", repeat: Infinity, delay: 8 }
             }}
           />
 
-          {/* 画笔轨迹5 - 长弧线 */}
+          {/* 曲线4 - 最后出现 */}
           <motion.path
-            d="M95,95 Q70,80 50,85 T20,70 Q10,60 25,50 T40,35 Q50,25 60,35 T80,20 Q95,10 85,5"
+            d="M-5,90 Q10,85 28,92 T52,85 Q68,78 85,88 T105,82"
             fill="none"
             stroke="rgba(74,108,111,0.35)"
-            strokeWidth="0.15"
-            strokeLinecap="round"
-            filter="url(#glowSoft)"
-            strokeDasharray="120"
-            initial={{ strokeDashoffset: 120, opacity: 0 }}
-            animate={{ 
-              strokeDashoffset: [120, 0, 0, -120],
-              opacity: [0, 0.5, 0.5, 0]
-            }}
-            transition={{ 
-              strokeDashoffset: { duration: 14, ease: "easeInOut", repeat: Infinity, delay: 0.5 },
-              opacity: { duration: 14, ease: "easeInOut", repeat: Infinity, delay: 0.5 }
-            }}
-          />
-
-          {/* 画笔轨迹6 - 快速掠过 */}
-          <motion.path
-            d="M15,40 Q25,35 30,42 T45,38 Q55,32 50,45 T65,42 Q75,38 70,50"
-            fill="none"
-            stroke="rgba(107,142,143,0.3)"
             strokeWidth="0.18"
             strokeLinecap="round"
-            filter="url(#glow2)"
-            strokeDasharray="60"
-            initial={{ strokeDashoffset: 60, opacity: 0 }}
+            filter="url(#glow)"
+            strokeDasharray="125"
+            initial={{ strokeDashoffset: 125, opacity: 0, translateY: 0 }}
             animate={{ 
-              strokeDashoffset: [60, 0, 0, -60],
-              opacity: [0, 0.5, 0.5, 0]
+              strokeDashoffset: [125, 0, 0, -125],
+              opacity: [0, 0.45, 0.45, 0],
+              translateY: [0, -3, 5, -2]
             }}
             transition={{ 
-              strokeDashoffset: { duration: 5, ease: "easeInOut", repeat: Infinity, delay: 4 },
-              opacity: { duration: 5, ease: "easeInOut", repeat: Infinity, delay: 4 }
-            }}
-          />
-
-          {/* 画笔轨迹7 - 点状轨迹 */}
-          <motion.path
-            d="M80,70 Q75,65 78,60 T72,52 Q68,48 72,45 T68,38"
-            fill="none"
-            stroke="rgba(74,108,111,0.25)"
-            strokeWidth="0.12"
-            strokeLinecap="round"
-            filter="url(#glow1)"
-            strokeDasharray="35"
-            initial={{ strokeDashoffset: 35, opacity: 0 }}
-            animate={{ 
-              strokeDashoffset: [35, 0, 0, -35],
-              opacity: [0, 0.4, 0.4, 0]
-            }}
-            transition={{ 
-              strokeDashoffset: { duration: 8, ease: "easeInOut", repeat: Infinity, delay: 1.5 },
-              opacity: { duration: 8, ease: "easeInOut", repeat: Infinity, delay: 1.5 }
-            }}
-          />
-
-          {/* 画笔轨迹8 - 收尾点缀 */}
-          <motion.path
-            d="M50,95 Q45,90 55,85 T65,80 Q70,75 65,70 T75,65 Q82,60 78,55"
-            fill="none"
-            stroke="rgba(184,142,108,0.3)"
-            strokeWidth="0.15"
-            strokeLinecap="round"
-            filter="url(#glow2)"
-            strokeDasharray="45"
-            initial={{ strokeDashoffset: 45, opacity: 0 }}
-            animate={{ 
-              strokeDashoffset: [45, 0, 0, -45],
-              opacity: [0, 0.45, 0.45, 0]
-            }}
-            transition={{ 
-              strokeDashoffset: { duration: 9, ease: "easeInOut", repeat: Infinity, delay: 5 },
-              opacity: { duration: 9, ease: "easeInOut", repeat: Infinity, delay: 5 }
+              strokeDashoffset: { duration: 24, ease: "easeInOut", repeat: Infinity, delay: 12 },
+              opacity: { duration: 24, ease: "easeInOut", repeat: Infinity, delay: 12 },
+              translateY: { duration: 20, ease: "easeInOut", repeat: Infinity, delay: 12 }
             }}
           />
         </svg>
